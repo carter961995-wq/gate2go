@@ -3,10 +3,8 @@ import SwiftUI
 import Combine
 
 final class Gate2GoSettings: ObservableObject {
-    // Swift 6 / strict concurrency: ObservableObject's `objectWillChange` requirement is nonisolated,
-    // but `ObservableObjectPublisher` is not Sendable. Marking it `nonisolated(unsafe)` is the
-    // standard escape hatch for ObservableObject publishers.
-    nonisolated(unsafe) let objectWillChange = ObservableObjectPublisher()
+    // Explicit publisher so `ObservableObject` conformance is satisfied even without `@Published` properties.
+    let objectWillChange = ObservableObjectPublisher()
 
     @AppStorage("g2g_hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false { willSet { objectWillChange.send() } }
 
