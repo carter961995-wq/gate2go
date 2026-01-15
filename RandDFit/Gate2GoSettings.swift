@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 final class Gate2GoSettings: ObservableObject {
     @AppStorage("g2g_hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
 
