@@ -3,8 +3,32 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 56;
 	objects = {
+
+/* Begin PBXBuildFile section */
+		08386D3BE865670F8A03AD4A /* DesignDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2199992B7BBAA09D3B3A00 /* DesignDetailView.swift */; };
+		205BF87372A9E6C257C196FC /* Gate2GoSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CD5FE4174B08D66DFC8B8E /* Gate2GoSettings.swift */; };
+		24086DF06F8702EB9BFF8FDA /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25315BE67162E628BD5D619D /* Item.swift */; };
+		3A9CE4A2201AC15E229ADA72 /* RandDFitUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13ED490F6DD1BE4EFFBAB052 /* RandDFitUITestsLaunchTests.swift */; };
+		3C60903ED8123F443724F62B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B604D0CA83780F508BC767 /* SettingsView.swift */; };
+		4C85D3D7492B7E5DFD9764E5 /* Gate2GoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60DDCD8EA34F8B43C38F3B81 /* Gate2GoModels.swift */; };
+		4DDE759FF3BA9F8D63DE131F /* RandDFitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9037882E4F8FA3226905F849 /* RandDFitApp.swift */; };
+		51BC1B773C597779892C2102 /* MoneyFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8601BC16C7D759B20CFC916F /* MoneyFormatting.swift */; };
+		64976C46B90ADA65DD1A7880 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90D58AD4980E572BDDA1301 /* ContentView.swift */; };
+		659603F064729193F11796BD /* DesignGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234811788941F480BF1D4364 /* DesignGalleryView.swift */; };
+		6AF4912D5E8672BD6926D726 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C86BCBDD72D47449B208FA /* PaywallView.swift */; };
+		7B0ADD72C295C53EB9570667 /* NewProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE358F062F4570C51D8A67 /* NewProjectView.swift */; };
+		8419066A1FB3CC2282027452 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B219BFE02C6F21C2592F865 /* Assets.xcassets */; };
+		B624D46EA510D7A44FF66CE0 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DB9C44783610320F3822BF9 /* OnboardingView.swift */; };
+		B8580AD77FC99066B63F8966 /* VisualCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3E9C463F3E1431254642B9 /* VisualCard.swift */; };
+		CC044724DEF70FF96711921F /* ProjectWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1D8E5601051F853140E669B /* ProjectWorkspaceView.swift */; };
+		D21427DE2FB305CC12F11DF2 /* PricingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541F997C93FFF9428AF8C61F /* PricingCalculator.swift */; };
+		E435A13BABCD210E7FA5C4AB /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C66C6E23CC074C99EB8FE63 /* FileStore.swift */; };
+		E72EE1B948D9344B45C561D5 /* RandDFitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC5C254592D0F40A2C78312 /* RandDFitTests.swift */; };
+		EBB1A349E896F7187FD25BEE /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E2E8B435C4F0D2A7198336 /* ProjectsListView.swift */; };
+		993F7424532D6F5C8028AE15 /* RandDFitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AC0A6CCB9A0D1E5D0338B8 /* RandDFitUITests.swift */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		5979EF9D2F11B957005FE7F7 /* PBXContainerItemProxy */ = {
@@ -24,28 +48,31 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0FC5C254592D0F40A2C78312 /* RandDFitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitTests.swift; sourceTree = "<group>"; };
+		13ED490F6DD1BE4EFFBAB052 /* RandDFitUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		234811788941F480BF1D4364 /* DesignGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignGalleryView.swift; sourceTree = "<group>"; };
+		25315BE67162E628BD5D619D /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		2B219BFE02C6F21C2592F865 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2C66C6E23CC074C99EB8FE63 /* FileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
+		31C86BCBDD72D47449B208FA /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		35E2E8B435C4F0D2A7198336 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
+		4C3E9C463F3E1431254642B9 /* VisualCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualCard.swift; sourceTree = "<group>"; };
+		4DB9C44783610320F3822BF9 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		50AC0A6CCB9A0D1E5D0338B8 /* RandDFitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitUITests.swift; sourceTree = "<group>"; };
+		541F997C93FFF9428AF8C61F /* PricingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingCalculator.swift; sourceTree = "<group>"; };
+		60DDCD8EA34F8B43C38F3B81 /* Gate2GoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gate2GoModels.swift; sourceTree = "<group>"; };
+		83CD5FE4174B08D66DFC8B8E /* Gate2GoSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gate2GoSettings.swift; sourceTree = "<group>"; };
+		8601BC16C7D759B20CFC916F /* MoneyFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyFormatting.swift; sourceTree = "<group>"; };
+		87B604D0CA83780F508BC767 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9037882E4F8FA3226905F849 /* RandDFitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitApp.swift; sourceTree = "<group>"; };
+		9E2199992B7BBAA09D3B3A00 /* DesignDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignDetailView.swift; sourceTree = "<group>"; };
+		A90D58AD4980E572BDDA1301 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BCDE358F062F4570C51D8A67 /* NewProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProjectView.swift; sourceTree = "<group>"; };
+		D1D8E5601051F853140E669B /* ProjectWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectWorkspaceView.swift; sourceTree = "<group>"; };
 		5979EF8D2F11B955005FE7F7 /* RandDFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandDFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5979EF9C2F11B957005FE7F7 /* RandDFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandDFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5979EFA62F11B957005FE7F7 /* RandDFitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandDFitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		5979EF8F2F11B955005FE7F7 /* RandDFit */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RandDFit;
-			sourceTree = "<group>";
-		};
-		5979EF9F2F11B957005FE7F7 /* RandDFitTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RandDFitTests;
-			sourceTree = "<group>";
-		};
-		5979EFA92F11B957005FE7F7 /* RandDFitUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RandDFitUITests;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5979EF8A2F11B955005FE7F7 /* Frameworks */ = {
@@ -72,12 +99,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0E97049479E0DA133382A082 /* RandDFitTests */ = {
+			isa = PBXGroup;
+			children = (
+				0FC5C254592D0F40A2C78312 /* RandDFitTests.swift */,
+			);
+			path = RandDFitTests;
+			sourceTree = "<group>";
+		};
 		5979EF842F11B955005FE7F7 = {
 			isa = PBXGroup;
 			children = (
-				5979EF8F2F11B955005FE7F7 /* RandDFit */,
-				5979EF9F2F11B957005FE7F7 /* RandDFitTests */,
-				5979EFA92F11B957005FE7F7 /* RandDFitUITests */,
+				7B16075476DD66FE76135662 /* RandDFit */,
+				0E97049479E0DA133382A082 /* RandDFitTests */,
+				AA92C6EB88B654B978F41486 /* RandDFitUITests */,
 				5979EF8E2F11B955005FE7F7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +125,40 @@
 				5979EFA62F11B957005FE7F7 /* RandDFitUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		7B16075476DD66FE76135662 /* RandDFit */ = {
+			isa = PBXGroup;
+			children = (
+				2B219BFE02C6F21C2592F865 /* Assets.xcassets */,
+				A90D58AD4980E572BDDA1301 /* ContentView.swift */,
+				9E2199992B7BBAA09D3B3A00 /* DesignDetailView.swift */,
+				234811788941F480BF1D4364 /* DesignGalleryView.swift */,
+				2C66C6E23CC074C99EB8FE63 /* FileStore.swift */,
+				60DDCD8EA34F8B43C38F3B81 /* Gate2GoModels.swift */,
+				83CD5FE4174B08D66DFC8B8E /* Gate2GoSettings.swift */,
+				25315BE67162E628BD5D619D /* Item.swift */,
+				8601BC16C7D759B20CFC916F /* MoneyFormatting.swift */,
+				BCDE358F062F4570C51D8A67 /* NewProjectView.swift */,
+				4DB9C44783610320F3822BF9 /* OnboardingView.swift */,
+				31C86BCBDD72D47449B208FA /* PaywallView.swift */,
+				541F997C93FFF9428AF8C61F /* PricingCalculator.swift */,
+				35E2E8B435C4F0D2A7198336 /* ProjectsListView.swift */,
+				D1D8E5601051F853140E669B /* ProjectWorkspaceView.swift */,
+				9037882E4F8FA3226905F849 /* RandDFitApp.swift */,
+				87B604D0CA83780F508BC767 /* SettingsView.swift */,
+				4C3E9C463F3E1431254642B9 /* VisualCard.swift */,
+			);
+			path = RandDFit;
+			sourceTree = "<group>";
+		};
+		AA92C6EB88B654B978F41486 /* RandDFitUITests */ = {
+			isa = PBXGroup;
+			children = (
+				50AC0A6CCB9A0D1E5D0338B8 /* RandDFitUITests.swift */,
+				13ED490F6DD1BE4EFFBAB052 /* RandDFitUITestsLaunchTests.swift */,
+			);
+			path = RandDFitUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -106,9 +175,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				5979EF8F2F11B955005FE7F7 /* RandDFit */,
 			);
 			name = RandDFit;
 			packageProductDependencies = (
@@ -130,9 +196,6 @@
 			dependencies = (
 				5979EF9E2F11B957005FE7F7 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				5979EF9F2F11B957005FE7F7 /* RandDFitTests */,
-			);
 			name = RandDFitTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +215,6 @@
 			);
 			dependencies = (
 				5979EFA82F11B957005FE7F7 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				5979EFA92F11B957005FE7F7 /* RandDFitUITests */,
 			);
 			name = RandDFitUITests;
 			packageProductDependencies = (
@@ -195,7 +255,7 @@
 			);
 			mainGroup = 5979EF842F11B955005FE7F7;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 56;
 			productRefGroup = 5979EF8E2F11B955005FE7F7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -212,6 +272,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8419066A1FB3CC2282027452 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +297,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64976C46B90ADA65DD1A7880 /* ContentView.swift in Sources */,
+				08386D3BE865670F8A03AD4A /* DesignDetailView.swift in Sources */,
+				659603F064729193F11796BD /* DesignGalleryView.swift in Sources */,
+				E435A13BABCD210E7FA5C4AB /* FileStore.swift in Sources */,
+				4C85D3D7492B7E5DFD9764E5 /* Gate2GoModels.swift in Sources */,
+				205BF87372A9E6C257C196FC /* Gate2GoSettings.swift in Sources */,
+				24086DF06F8702EB9BFF8FDA /* Item.swift in Sources */,
+				51BC1B773C597779892C2102 /* MoneyFormatting.swift in Sources */,
+				7B0ADD72C295C53EB9570667 /* NewProjectView.swift in Sources */,
+				B624D46EA510D7A44FF66CE0 /* OnboardingView.swift in Sources */,
+				6AF4912D5E8672BD6926D726 /* PaywallView.swift in Sources */,
+				D21427DE2FB305CC12F11DF2 /* PricingCalculator.swift in Sources */,
+				EBB1A349E896F7187FD25BEE /* ProjectsListView.swift in Sources */,
+				CC044724DEF70FF96711921F /* ProjectWorkspaceView.swift in Sources */,
+				4DDE759FF3BA9F8D63DE131F /* RandDFitApp.swift in Sources */,
+				3C60903ED8123F443724F62B /* SettingsView.swift in Sources */,
+				B8580AD77FC99066B63F8966 /* VisualCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +321,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E72EE1B948D9344B45C561D5 /* RandDFitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +329,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				993F7424532D6F5C8028AE15 /* RandDFitUITests.swift in Sources */,
+				3A9CE4A2201AC15E229ADA72 /* RandDFitUITestsLaunchTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
