@@ -12,21 +12,66 @@
 			containerPortal = 5979EF852F11B955005FE7F7 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5979EF8C2F11B955005FE7F7;
-			remoteInfo = RandDFit;
+			remoteInfo = Gate2Go;
 		};
 		5979EFA72F11B957005FE7F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5979EF852F11B955005FE7F7 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5979EF8C2F11B955005FE7F7;
-			remoteInfo = RandDFit;
+			remoteInfo = Gate2Go;
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXBuildFile section */
+		030CB753B353B5D1ED6A4440 /* DesignDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 789698827FF703DE522D7A06 /* DesignDetailView.swift */; };
+		D5D9BF42745140862E826367 /* Gate2GoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422D16329B411564A0D98F5F /* Gate2GoApp.swift */; };
+		0FF28F97A00EC661E500AB92 /* Gate2GoSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F3AC6A6D31354160B5E14A /* Gate2GoSettings.swift */; };
+		B69932D671AB57D16A3D19CC /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138B2CD6C7B97770518B6177 /* ProjectsListView.swift */; };
+		EB57DBD42C39C2BE67291AA1 /* NewProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBF5A4BBFC76D8AAC25752E2 /* NewProjectView.swift */; };
+		30F685BF734387E22EFDD860 /* Gate2GoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656AC00EFAD61E16F0FD587F /* Gate2GoModels.swift */; };
+		1A9DA52AE9E0E83D032DCCC0 /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEB03A75D897FB01E0DFB43 /* FileStore.swift */; };
+		CE0EC9D66DEF8F728CAE8CE1 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8681D0390A208B0E0F45E9B6 /* Item.swift */; };
+		AB6524077668D485456514A5 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A069CFB63C48097A5EE16B /* PaywallView.swift */; };
+		E32C0ED9E1B369A9E402028B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76CFB7A4725B25DD2A3212AB /* ContentView.swift */; };
+		0063CC09DC7A2D0FA4286345 /* MoneyFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2227448DE600774E1E5D75 /* MoneyFormatting.swift */; };
+		2331B344B724CF0BBE2BCD44 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42802E424B91D2159E7D0E9E /* OnboardingView.swift */; };
+		0A957464960FBBB2465518E8 /* PricingCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C25FC310B6B5E1ED300E54D /* PricingCalculator.swift */; };
+		1B5AAA1E4094FF30B443756C /* DesignGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25766664DDD2961A18B345BD /* DesignGalleryView.swift */; };
+		B3DAFA83E9E07444406B455A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43385F7EF618DED3CCC5DB65 /* SettingsView.swift */; };
+		0895E46BF6633457694D527E /* VisualCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611414FE654D092682FB1A31 /* VisualCard.swift */; };
+		73FFEE7E4C3C3A23046D57F5 /* ProjectWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461C1DECA1B0F4C774508BBA /* ProjectWorkspaceView.swift */; };
+		43B23BD83010B4BC9D09D7C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9DF0EE33A9C7A418047B20B /* Assets.xcassets */; };
+		0175D8D1A96D3F3987E64116 /* RandDFitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FAA2FD71A01B295340CB61 /* RandDFitTests.swift */; };
+		39A6FE012E54802085D3A790 /* RandDFitUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6BDBD79ADCFF22EC4408801 /* RandDFitUITests.swift */; };
+		0163DE5E01C84BF107BD65A2 /* RandDFitUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A991C9BD06CA0B2CFCFDA98B /* RandDFitUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		5979EF8D2F11B955005FE7F7 /* RandDFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandDFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5979EF9C2F11B957005FE7F7 /* RandDFitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandDFitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5979EFA62F11B957005FE7F7 /* RandDFitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandDFitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5979EF8D2F11B955005FE7F7 /* Gate2Go.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gate2Go.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5979EF9C2F11B957005FE7F7 /* Gate2GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Gate2GoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5979EFA62F11B957005FE7F7 /* Gate2GoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Gate2GoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		789698827FF703DE522D7A06 /* DesignDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/DesignDetailView.swift; sourceTree = "<group>"; };
+		422D16329B411564A0D98F5F /* Gate2GoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/Gate2GoApp.swift; sourceTree = "<group>"; };
+		53F3AC6A6D31354160B5E14A /* Gate2GoSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/Gate2GoSettings.swift; sourceTree = "<group>"; };
+		138B2CD6C7B97770518B6177 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/ProjectsListView.swift; sourceTree = "<group>"; };
+		DBF5A4BBFC76D8AAC25752E2 /* NewProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/NewProjectView.swift; sourceTree = "<group>"; };
+		656AC00EFAD61E16F0FD587F /* Gate2GoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/Gate2GoModels.swift; sourceTree = "<group>"; };
+		6EEB03A75D897FB01E0DFB43 /* FileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/FileStore.swift; sourceTree = "<group>"; };
+		8681D0390A208B0E0F45E9B6 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/Item.swift; sourceTree = "<group>"; };
+		E6A069CFB63C48097A5EE16B /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/PaywallView.swift; sourceTree = "<group>"; };
+		76CFB7A4725B25DD2A3212AB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/ContentView.swift; sourceTree = "<group>"; };
+		DB2227448DE600774E1E5D75 /* MoneyFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/MoneyFormatting.swift; sourceTree = "<group>"; };
+		42802E424B91D2159E7D0E9E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/OnboardingView.swift; sourceTree = "<group>"; };
+		9C25FC310B6B5E1ED300E54D /* PricingCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/PricingCalculator.swift; sourceTree = "<group>"; };
+		25766664DDD2961A18B345BD /* DesignGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/DesignGalleryView.swift; sourceTree = "<group>"; };
+		43385F7EF618DED3CCC5DB65 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/SettingsView.swift; sourceTree = "<group>"; };
+		611414FE654D092682FB1A31 /* VisualCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/VisualCard.swift; sourceTree = "<group>"; };
+		461C1DECA1B0F4C774508BBA /* ProjectWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFit/ProjectWorkspaceView.swift; sourceTree = "<group>"; };
+		A9DF0EE33A9C7A418047B20B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = RandDFit/Assets.xcassets; sourceTree = "<group>"; };
+		B6FAA2FD71A01B295340CB61 /* RandDFitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitTests/RandDFitTests.swift; sourceTree = "<group>"; };
+		A6BDBD79ADCFF22EC4408801 /* RandDFitUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitUITests/RandDFitUITests.swift; sourceTree = "<group>"; };
+		A991C9BD06CA0B2CFCFDA98B /* RandDFitUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandDFitUITests/RandDFitUITestsLaunchTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -85,9 +130,9 @@
 		5979EF8E2F11B955005FE7F7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5979EF8D2F11B955005FE7F7 /* RandDFit.app */,
-				5979EF9C2F11B957005FE7F7 /* RandDFitTests.xctest */,
-				5979EFA62F11B957005FE7F7 /* RandDFitUITests.xctest */,
+				5979EF8D2F11B955005FE7F7 /* Gate2Go.app */,
+				5979EF9C2F11B957005FE7F7 /* Gate2GoTests.xctest */,
+				5979EFA62F11B957005FE7F7 /* Gate2GoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +140,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5979EF8C2F11B955005FE7F7 /* RandDFit */ = {
+		5979EF8C2F11B955005FE7F7 /* Gate2Go */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5979EFB02F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFit" */;
+			buildConfigurationList = 5979EFB02F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2Go" */;
 			buildPhases = (
 				5979EF892F11B955005FE7F7 /* Sources */,
 				5979EF8A2F11B955005FE7F7 /* Frameworks */,
@@ -110,16 +155,16 @@
 			fileSystemSynchronizedGroups = (
 				5979EF8F2F11B955005FE7F7 /* RandDFit */,
 			);
-			name = RandDFit;
+			name = Gate2Go;
 			packageProductDependencies = (
 			);
-			productName = RandDFit;
-			productReference = 5979EF8D2F11B955005FE7F7 /* RandDFit.app */;
+			productName = Gate2Go;
+			productReference = 5979EF8D2F11B955005FE7F7 /* Gate2Go.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5979EF9B2F11B957005FE7F7 /* RandDFitTests */ = {
+		5979EF9B2F11B957005FE7F7 /* Gate2GoTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5979EFB32F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFitTests" */;
+			buildConfigurationList = 5979EFB32F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2GoTests" */;
 			buildPhases = (
 				5979EF982F11B957005FE7F7 /* Sources */,
 				5979EF992F11B957005FE7F7 /* Frameworks */,
@@ -133,16 +178,16 @@
 			fileSystemSynchronizedGroups = (
 				5979EF9F2F11B957005FE7F7 /* RandDFitTests */,
 			);
-			name = RandDFitTests;
+			name = Gate2GoTests;
 			packageProductDependencies = (
 			);
-			productName = RandDFitTests;
-			productReference = 5979EF9C2F11B957005FE7F7 /* RandDFitTests.xctest */;
+			productName = Gate2GoTests;
+			productReference = 5979EF9C2F11B957005FE7F7 /* Gate2GoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		5979EFA52F11B957005FE7F7 /* RandDFitUITests */ = {
+		5979EFA52F11B957005FE7F7 /* Gate2GoUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5979EFB62F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFitUITests" */;
+			buildConfigurationList = 5979EFB62F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2GoUITests" */;
 			buildPhases = (
 				5979EFA22F11B957005FE7F7 /* Sources */,
 				5979EFA32F11B957005FE7F7 /* Frameworks */,
@@ -156,11 +201,11 @@
 			fileSystemSynchronizedGroups = (
 				5979EFA92F11B957005FE7F7 /* RandDFitUITests */,
 			);
-			name = RandDFitUITests;
+			name = Gate2GoUITests;
 			packageProductDependencies = (
 			);
-			productName = RandDFitUITests;
-			productReference = 5979EFA62F11B957005FE7F7 /* RandDFitUITests.xctest */;
+			productName = Gate2GoUITests;
+			productReference = 5979EFA62F11B957005FE7F7 /* Gate2GoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +231,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 5979EF882F11B955005FE7F7 /* Build configuration list for PBXProject "RandDFit" */;
+			buildConfigurationList = 5979EF882F11B955005FE7F7 /* Build configuration list for PBXProject "Gate2Go" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +245,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5979EF8C2F11B955005FE7F7 /* RandDFit */,
-				5979EF9B2F11B957005FE7F7 /* RandDFitTests */,
-				5979EFA52F11B957005FE7F7 /* RandDFitUITests */,
+				5979EF8C2F11B955005FE7F7 /* Gate2Go */,
+				5979EF9B2F11B957005FE7F7 /* Gate2GoTests */,
+				5979EFA52F11B957005FE7F7 /* Gate2GoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -212,6 +257,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43B23BD83010B4BC9D09D7C3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +282,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E32C0ED9E1B369A9E402028B /* ContentView.swift in Sources */,
+				1B5AAA1E4094FF30B443756C /* DesignGalleryView.swift in Sources */,
+				030CB753B353B5D1ED6A4440 /* DesignDetailView.swift in Sources */,
+				1A9DA52AE9E0E83D032DCCC0 /* FileStore.swift in Sources */,
+				30F685BF734387E22EFDD860 /* Gate2GoModels.swift in Sources */,
+				0FF28F97A00EC661E500AB92 /* Gate2GoSettings.swift in Sources */,
+				CE0EC9D66DEF8F728CAE8CE1 /* Item.swift in Sources */,
+				0063CC09DC7A2D0FA4286345 /* MoneyFormatting.swift in Sources */,
+				EB57DBD42C39C2BE67291AA1 /* NewProjectView.swift in Sources */,
+				2331B344B724CF0BBE2BCD44 /* OnboardingView.swift in Sources */,
+				AB6524077668D485456514A5 /* PaywallView.swift in Sources */,
+				0A957464960FBBB2465518E8 /* PricingCalculator.swift in Sources */,
+				B69932D671AB57D16A3D19CC /* ProjectsListView.swift in Sources */,
+				73FFEE7E4C3C3A23046D57F5 /* ProjectWorkspaceView.swift in Sources */,
+				D5D9BF42745140862E826367 /* Gate2GoApp.swift in Sources */,
+				B3DAFA83E9E07444406B455A /* SettingsView.swift in Sources */,
+				0895E46BF6633457694D527E /* VisualCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0175D8D1A96D3F3987E64116 /* RandDFitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +314,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39A6FE012E54802085D3A790 /* RandDFitUITests.swift in Sources */,
+				0163DE5E01C84BF107BD65A2 /* RandDFitUITestsLaunchTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,12 +324,12 @@
 /* Begin PBXTargetDependency section */
 		5979EF9E2F11B957005FE7F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5979EF8C2F11B955005FE7F7 /* RandDFit */;
+			target = 5979EF8C2F11B955005FE7F7 /* Gate2Go */;
 			targetProxy = 5979EF9D2F11B957005FE7F7 /* PBXContainerItemProxy */;
 		};
 		5979EFA82F11B957005FE7F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5979EF8C2F11B955005FE7F7 /* RandDFit */;
+			target = 5979EF8C2F11B955005FE7F7 /* Gate2Go */;
 			targetProxy = 5979EFA72F11B957005FE7F7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -410,7 +476,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFit;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2Go;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -442,7 +508,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFit;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2Go;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -464,7 +530,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFitTests;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2GoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -472,7 +538,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RandDFit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RandDFit";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Gate2Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Gate2Go";
 			};
 			name = Debug;
 		};
@@ -486,7 +552,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFitTests;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2GoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -494,7 +560,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RandDFit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RandDFit";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Gate2Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Gate2Go";
 			};
 			name = Release;
 		};
@@ -506,7 +572,7 @@
 				DEVELOPMENT_TEAM = 27V86YPW29;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFitUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2GoUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -514,7 +580,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RandDFit;
+				TEST_TARGET_NAME = Gate2Go;
 			};
 			name = Debug;
 		};
@@ -526,7 +592,7 @@
 				DEVELOPMENT_TEAM = 27V86YPW29;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = auto.RandDFitUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = auto.Gate2GoUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -534,14 +600,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = RandDFit;
+				TEST_TARGET_NAME = Gate2Go;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		5979EF882F11B955005FE7F7 /* Build configuration list for PBXProject "RandDFit" */ = {
+		5979EF882F11B955005FE7F7 /* Build configuration list for PBXProject "Gate2Go" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5979EFAE2F11B957005FE7F7 /* Debug */,
@@ -550,7 +616,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5979EFB02F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFit" */ = {
+		5979EFB02F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2Go" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5979EFB12F11B957005FE7F7 /* Debug */,
@@ -559,7 +625,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5979EFB32F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFitTests" */ = {
+		5979EFB32F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2GoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5979EFB42F11B957005FE7F7 /* Debug */,
@@ -568,7 +634,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5979EFB62F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "RandDFitUITests" */ = {
+		5979EFB62F11B957005FE7F7 /* Build configuration list for PBXNativeTarget "Gate2GoUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5979EFB72F11B957005FE7F7 /* Debug */,
