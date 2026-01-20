@@ -14,6 +14,7 @@ struct NewProjectView: View {
     @State private var notes = ""
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var sitePhotoData: Data?
+    @State private var showCameraPicker = false
 
     var body: some View {
         NavigationStack {
@@ -42,10 +43,19 @@ struct NewProjectView: View {
                                 .frame(width: 60, height: 60)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         } else {
-                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                                Image(systemName: "camera.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(.blue)
+                            HStack(spacing: 12) {
+                                PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                    Image(systemName: "photo.on.rectangle")
+                                        .font(.title2)
+                                        .foregroundStyle(.blue)
+                                }
+
+                                Button(action: { showCameraPicker = true }) {
+                                    Image(systemName: "camera.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(.blue)
+                                }
+                                .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
                             }
                         }
                     }
@@ -76,6 +86,9 @@ struct NewProjectView: View {
                     .disabled(clientName.isEmpty)
                 }
             }
+        }
+        .sheet(isPresented: $showCameraPicker) {
+            ImagePicker(imageData: $sitePhotoData, sourceType: .camera)
         }
     }
 

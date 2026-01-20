@@ -43,7 +43,13 @@ struct ProjectWorkspaceView: View {
     }
 
     var totalPriceCents: Int {
-        subtotalCents + markupCents + taxCents
+        PricingCalculator.calculateTotalPrice(
+            basePriceCents: basePriceCents,
+            addons: addons,
+            laborCents: laborCents,
+            markupPercent: settings.defaultMarkupPercent,
+            taxPercent: settings.defaultTaxPercent
+        )
     }
 
     var body: some View {
@@ -277,11 +283,7 @@ struct ProjectWorkspaceView: View {
 
             VStack(spacing: 12) {
                 pricingRow("Base Price", cents: basePriceCents)
-
-                if addonsTotalCents > 0 {
-                    pricingRow("Add-ons (\(addons.count))", cents: addonsTotalCents)
-                }
-
+                pricingRow("Add-ons (\(addons.count))", cents: addonsTotalCents)
                 pricingRow("Labor", cents: laborCents)
                 pricingRow("Markup (\(Int(settings.defaultMarkupPercent))%)", cents: markupCents)
                 pricingRow("Tax (\(Int(settings.defaultTaxPercent))%)", cents: taxCents)
@@ -326,12 +328,14 @@ struct ProjectWorkspaceView: View {
     }
 
     private func saveDesign() {
+        let addonsData = try? JSONEncoder().encode(addons)
         let design = GateDesignModel(
             projectId: project.id,
             gateStyle: gateStyle.rawValue,
             material: material.rawValue,
             widthFeet: widthFeet,
             heightFeet: heightFeet,
+            addonsData: addonsData,
             basePriceCents: basePriceCents,
             totalPriceCents: totalPriceCents,
             laborCents: laborCents,
@@ -339,6 +343,7 @@ struct ProjectWorkspaceView: View {
             taxPercent: settings.defaultTaxPercent
         )
         modelContext.insert(design)
+        project.updatedAt = Date()
 
         if !settings.isPremium && settings.singleDesignCredits > 0 {
             settings.useSingleDesignCredit()

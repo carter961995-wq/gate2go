@@ -6,9 +6,19 @@ struct DesignDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var settings: Gate2GoSettings
     @Bindable var design: GateDesignModel
+    @Query private var projects: [ProjectModel]
 
     @State private var showShareSheet = false
     @State private var pdfData: Data?
+
+    init(design: GateDesignModel) {
+        self._design = Bindable(wrappedValue: design)
+        _projects = Query(filter: #Predicate<ProjectModel> { $0.id == design.projectId })
+    }
+
+    private var project: ProjectModel? {
+        projects.first
+    }
 
     var body: some View {
         ScrollView {
@@ -64,12 +74,17 @@ struct DesignDetailView: View {
     }
 
     private var pricingSection: some View {
+        let addons = decodedAddons
+        let addonsTotal = addons.reduce(0) { $0 + $1.totalCents }
         VStack(alignment: .leading, spacing: 12) {
             Text("Pricing")
                 .font(.headline)
 
             VStack(spacing: 8) {
                 specRow("Base Price", value: PricingCalculator.formatMoney(design.basePriceCents))
+                if addonsTotal > 0 {
+                    specRow("Add-ons", value: PricingCalculator.formatMoney(addonsTotal))
+                }
                 specRow("Labor", value: PricingCalculator.formatMoney(design.laborCents))
                 specRow("Markup", value: "\(Int(design.markupPercent))%")
                 specRow("Tax", value: "\(Int(design.taxPercent))%")
@@ -91,9 +106,21 @@ struct DesignDetailView: View {
         }
     }
 
+    private var decodedAddons: [AddonLineItem] {
+        guard let data = design.addonsData else { return [] }
+        return (try? JSONDecoder().decode([AddonLineItem].self, from: data)) ?? []
+    }
+
     private var actionsSection: some View {
         VStack(spacing: 12) {
-            Toggle("Selected by Client", isOn: $design.selectedByClient)
+            Toggle("Selected by Client", isOn: Binding(
+                get: { design.selectedByClient },
+                set: { newValue in
+                    design.selectedByClient = newValue
+                    design.updatedAt = Date()
+                    project?.updatedAt = Date()
+                }
+            ))
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
@@ -126,9 +153,13 @@ struct DesignDetailView: View {
     }
 
     private func exportPDF() {
-        // Note: Need project data for full PDF generation
-        // This is a simplified version
-        showShareSheet = true
+        guard let project else { return }
+        pdfData = ProposalGenerator.generatePDF(
+            project: project,
+            design: design,
+            settings: settings
+        )
+        showShareSheet = (pdfData != nil)
     }
 
     private func duplicateDesign() {
@@ -138,6 +169,7 @@ struct DesignDetailView: View {
             material: design.material,
             widthFeet: design.widthFeet,
             heightFeet: design.heightFeet,
+            addonsData: design.addonsData,
             basePriceCents: design.basePriceCents,
             totalPriceCents: design.totalPriceCents,
             laborCents: design.laborCents,
@@ -145,6 +177,7 @@ struct DesignDetailView: View {
             taxPercent: design.taxPercent
         )
         modelContext.insert(newDesign)
+        project?.updatedAt = Date()
     }
 }
 

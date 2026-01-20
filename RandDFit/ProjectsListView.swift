@@ -9,10 +9,14 @@ struct ProjectsListView: View {
     @State private var showNewProject = false
 
     var filteredProjects: [ProjectModel] {
-        if searchText.isEmpty {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
             return projects
         }
-        return projects.filter { $0.clientName.localizedCaseInsensitiveContains(searchText) }
+        return projects.filter {
+            $0.clientName.localizedCaseInsensitiveContains(trimmed) ||
+            $0.siteAddress.localizedCaseInsensitiveContains(trimmed)
+        }
     }
 
     var body: some View {
@@ -104,6 +108,10 @@ struct ProjectRow: View {
 
                 Text(project.siteAddress.isEmpty ? "No address" : project.siteAddress)
                     .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text("Updated \(project.updatedAt.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
         }

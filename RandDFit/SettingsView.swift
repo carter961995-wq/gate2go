@@ -1,13 +1,19 @@
 import SwiftUI
+import SwiftData
 import PhotosUI
 import UIKit
 
 struct SettingsView: View {
     @EnvironmentObject var settings: Gate2GoSettings
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
+    @Query private var projects: [ProjectModel]
+    @Query private var designs: [GateDesignModel]
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showDeleteAlert = false
     @State private var showResetAlert = false
     @State private var isRestoring = false
+    @State private var showDemoAlert = false
 
     var body: some View {
         NavigationStack {
@@ -33,16 +39,14 @@ struct SettingsView: View {
             HStack {
                 Text("Plan")
                 Spacer()
-                Text(settings.isPremium ? "Gate2Go Pro" : "Free")
+                Text(planLabel)
             }
 
-            if settings.singleDesignCredits > 0 {
-                HStack {
-                    Text("Design Credits")
-                    Spacer()
-                    Text("\(settings.singleDesignCredits)")
-                        .foregroundStyle(.blue)
-                }
+            HStack {
+                Text("Design Credits")
+                Spacer()
+                Text("\(settings.singleDesignCredits)")
+                    .foregroundStyle(.blue)
             }
 
             Button(action: restorePurchases) {
@@ -55,6 +59,21 @@ struct SettingsView: View {
                 }
             }
             .disabled(isRestoring)
+
+            if settings.isPremium {
+                Button("Manage Subscription") {
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        openURL(url)
+                    }
+                }
+            }
+
+            Toggle("Demo Mode (simulated purchases)", isOn: $settings.demoModeEnabled)
+        }
+        .alert("Demo Mode Disabled", isPresented: $showDemoAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Enable Demo Mode to simulate restores.")
         }
     }
 
@@ -144,7 +163,9 @@ struct SettingsView: View {
             }
             .alert("Delete All Data", isPresented: $showDeleteAlert) {
                 Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {}
+                Button("Delete", role: .destructive) {
+                    deleteAllData()
+                }
             } message: {
                 Text("This will permanently delete all your projects and designs.")
             }
@@ -156,6 +177,7 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
                 Button("Reset Everything", role: .destructive) {
                     settings.resetAll()
+                    deleteAllData()
                 }
             } message: {
                 Text("This will reset all settings and clear subscription status.")
@@ -163,10 +185,38 @@ struct SettingsView: View {
         }
     }
 
+    private var planLabel: String {
+        if settings.isPremium {
+            if settings.subscriptionPlan == .none {
+                return "Gate2Go Pro"
+            }
+            return "Gate2Go Pro (\(settings.subscriptionPlan.displayName))"
+        }
+        return "Free"
+    }
+
     private func restorePurchases() {
+        guard settings.demoModeEnabled else {
+            showDemoAlert = true
+            return
+        }
         isRestoring = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if settings.subscriptionPlan == .none {
+                settings.subscriptionPlan = .monthly
+            }
+            settings.subscriptionTier = .premium
+            settings.hasActiveSubscription = true
             isRestoring = false
+        }
+    }
+
+    private func deleteAllData() {
+        for design in designs {
+            modelContext.delete(design)
+        }
+        for project in projects {
+            modelContext.delete(project)
         }
     }
 }

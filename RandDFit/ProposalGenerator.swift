@@ -90,6 +90,12 @@ class ProposalGenerator {
 
             let gateStyle = GateStyle(rawValue: design.gateStyle)?.displayName ?? design.gateStyle
             let material = Material(rawValue: design.material)?.displayName ?? design.material
+            let addons = decodeAddons(from: design.addonsData)
+            let addonsTotalCents = addons.reduce(0) { $0 + $1.totalCents }
+            let subtotalCents = design.basePriceCents + addonsTotalCents + design.laborCents
+            let markupCents = Int(Double(subtotalCents) * design.markupPercent / 100)
+            let taxCents = Int(Double(subtotalCents + markupCents) * design.taxPercent / 100)
+            let totalCents = design.totalPriceCents > 0 ? design.totalPriceCents : (subtotalCents + markupCents + taxCents)
 
             "Style: \(gateStyle)".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
             yPosition += 18
@@ -106,18 +112,29 @@ class ProposalGenerator {
             "Base Price: \(PricingCalculator.formatMoney(design.basePriceCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
             yPosition += 18
 
+            if addonsTotalCents > 0 {
+                "Add-ons: \(PricingCalculator.formatMoney(addonsTotalCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
+                yPosition += 18
+
+                for addon in addons {
+                    let line = "• \(addon.type.displayName) x\(addon.quantity) — \(PricingCalculator.formatMoney(addon.totalCents))"
+                    line.draw(at: CGPoint(x: margin + 8, y: yPosition), withAttributes: normalAttributes)
+                    yPosition += 16
+                }
+            }
+
             "Labor: \(PricingCalculator.formatMoney(design.laborCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
             yPosition += 18
 
-            "Markup (\(Int(design.markupPercent))%): included".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
+            "Markup (\(Int(design.markupPercent))%): \(PricingCalculator.formatMoney(markupCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
             yPosition += 18
 
-            "Tax (\(Int(design.taxPercent))%): included".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
+            "Tax (\(Int(design.taxPercent))%): \(PricingCalculator.formatMoney(taxCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: normalAttributes)
             yPosition += 25
 
             let totalFont = UIFont.boldSystemFont(ofSize: 18)
             let totalAttributes: [NSAttributedString.Key: Any] = [.font: totalFont]
-            "Total: \(PricingCalculator.formatMoney(design.totalPriceCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: totalAttributes)
+            "Total: \(PricingCalculator.formatMoney(totalCents))".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: totalAttributes)
             yPosition += 50
 
             let footerFont = UIFont.italicSystemFont(ofSize: 10)
@@ -127,5 +144,10 @@ class ProposalGenerator {
         }
 
         return data
+    }
+
+    private static func decodeAddons(from data: Data?) -> [AddonLineItem] {
+        guard let data else { return [] }
+        return (try? JSONDecoder().decode([AddonLineItem].self, from: data)) ?? []
     }
 }

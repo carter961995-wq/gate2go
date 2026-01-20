@@ -6,12 +6,23 @@ struct PaywallView: View {
     @State private var isLoading = false
     @State private var isBuyingSingle = false
     @State private var isRestoring = false
+    @State private var selectedPlan: SubscriptionPlan = .monthly
+    @State private var showDemoAlert = false
+
+    private let proPlans: [SubscriptionPlan] = [.monthly, .yearly, .lifetime]
+
+    private let essentialFeatures = [
+        "3 gate styles",
+        "Wood & Steel materials",
+        "Pricing calculator",
+        "Save design versions"
+    ]
 
     private let proFeatures = [
-        ("square.grid.2x2", "All gate styles and materials"),
-        ("photo", "Visual designer with live preview"),
-        ("doc.text", "Unlimited projects and proposals"),
-        ("star", "Priority support")
+        "All gate styles and materials",
+        "Live visual gate preview",
+        "Unlimited projects & proposals",
+        "Priority support"
     ]
 
     private let singleFeatures = [
@@ -28,15 +39,26 @@ struct PaywallView: View {
                     proSection
                     divider
                     singleDesignSection
+                    demoModeSection
                     restoreButton
                 }
                 .padding()
             }
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                if settings.subscriptionPlan != .none {
+                    selectedPlan = settings.subscriptionPlan
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Close") { dismiss() }
                 }
+            }
+            .alert("Demo Mode Disabled", isPresented: $showDemoAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Enable Demo Mode in Settings to simulate purchases.")
             }
         }
     }
@@ -70,15 +92,9 @@ struct PaywallView: View {
                 }
             }
 
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(proFeatures, id: \.1) { icon, label in
-                    HStack(spacing: 10) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .font(.caption)
-                        Text(label)
-                            .font(.subheadline)
-                    }
+            VStack(spacing: 12) {
+                ForEach(proPlans, id: \.self) { plan in
+                    planRow(for: plan)
                 }
             }
 
@@ -87,7 +103,7 @@ struct PaywallView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Text("View Pro Plans")
+                    Text("Start \(selectedPlan.displayName) Plan")
                 }
             }
             .frame(maxWidth: .infinity)
@@ -96,6 +112,8 @@ struct PaywallView: View {
             .foregroundColor(.white)
             .cornerRadius(10)
             .disabled(isLoading)
+
+            comparisonSection
         }
         .padding()
         .background(Color(.systemGray6))
@@ -104,6 +122,37 @@ struct PaywallView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.blue.opacity(0.5), lineWidth: 2)
         )
+    }
+
+    private func planRow(for plan: SubscriptionPlan) -> some View {
+        Button(action: { selectedPlan = plan }) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(plan.displayName)
+                            .font(.headline)
+                        if plan == .yearly {
+                            Text("Save 33%")
+                                .font(.caption2.weight(.semibold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.green.opacity(0.2))
+                                .cornerRadius(8)
+                        }
+                    }
+                    Text(plan.priceText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: selectedPlan == plan ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(selectedPlan == plan ? .blue : .secondary)
+            }
+            .padding()
+            .background(selectedPlan == plan ? Color.blue.opacity(0.15) : Color(.systemGray5))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
     }
 
     private var divider: some View {
@@ -175,6 +224,51 @@ struct PaywallView: View {
         .cornerRadius(12)
     }
 
+    private var comparisonSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Plan Comparison")
+                .font(.headline)
+
+            HStack(alignment: .top, spacing: 16) {
+                featureColumn(title: "Essential", features: essentialFeatures, color: .gray)
+                featureColumn(title: "Pro", features: proFeatures, color: .blue)
+            }
+        }
+    }
+
+    private func featureColumn(title: String, features: [String], color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.bold())
+                .foregroundStyle(color)
+
+            ForEach(features, id: \.self) { feature in
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(color)
+                    Text(feature)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var demoModeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $settings.demoModeEnabled) {
+                Text("Demo Mode (simulated purchases)")
+                    .font(.subheadline.weight(.medium))
+            }
+            Text("Disable Demo Mode before connecting real StoreKit.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 8)
+    }
+
     private var restoreButton: some View {
         Button(action: restorePurchases) {
             if isRestoring {
@@ -190,15 +284,25 @@ struct PaywallView: View {
     }
 
     private func subscribeToPro() {
+        guard settings.demoModeEnabled else {
+            showDemoAlert = true
+            return
+        }
         isLoading = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             settings.subscriptionTier = .premium
+            settings.subscriptionPlan = selectedPlan
+            settings.hasActiveSubscription = true
             isLoading = false
             dismiss()
         }
     }
 
     private func buySingleDesign() {
+        guard settings.demoModeEnabled else {
+            showDemoAlert = true
+            return
+        }
         isBuyingSingle = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             settings.singleDesignCredits += 1
@@ -208,8 +312,17 @@ struct PaywallView: View {
     }
 
     private func restorePurchases() {
+        guard settings.demoModeEnabled else {
+            showDemoAlert = true
+            return
+        }
         isRestoring = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if settings.subscriptionPlan == .none {
+                settings.subscriptionPlan = .monthly
+            }
+            settings.subscriptionTier = .premium
+            settings.hasActiveSubscription = true
             isRestoring = false
             dismiss()
         }
