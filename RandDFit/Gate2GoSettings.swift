@@ -1,36 +1,51 @@
-import Foundation
 import SwiftUI
 
-@MainActor
-final class Gate2GoSettings: ObservableObject {
-    @AppStorage("g2g_hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+enum SubscriptionTier: String, CaseIterable {
+    case essential
+    case premium
+}
 
-    /// MVP “store-managed” placeholder. In V1 we wire StoreKit2 products here.
-    @AppStorage("g2g_hasActiveSubscription") var hasActiveSubscription: Bool = false
-    @AppStorage("g2g_subscriptionTier") private var subscriptionTierRaw: String = SubscriptionTier.essential.rawValue
+class Gate2GoSettings: ObservableObject {
+    @AppStorage("subscriptionTier") var subscriptionTier: SubscriptionTier = .essential
+    @AppStorage("singleDesignCredits") var singleDesignCredits: Int = 0
+    @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+    @AppStorage("hasActiveSubscription") var hasActiveSubscription: Bool = false
 
-    /// Defaults used in Options + Price.
-    @AppStorage("g2g_defaultMarkupPercent") var defaultMarkupPercent: Double = 30
-    @AppStorage("g2g_defaultLaborCents") var defaultLaborCents: Int = 0
-    @AppStorage("g2g_defaultTaxPercent") var defaultTaxPercent: Double = 0
+    @AppStorage("defaultLaborCents") var defaultLaborCents: Int = 50000
+    @AppStorage("defaultMarkupPercent") var defaultMarkupPercent: Double = 30
+    @AppStorage("defaultTaxPercent") var defaultTaxPercent: Double = 0
 
-    /// Proposal branding (V1).
-    @AppStorage("g2g_brandingCompanyName") var brandingCompanyName: String = ""
-    @AppStorage("g2g_brandingPhone") var brandingPhone: String = ""
-    @AppStorage("g2g_brandingEmail") var brandingEmail: String = ""
+    @AppStorage("brandingCompanyName") var brandingCompanyName: String = ""
+    @AppStorage("brandingPhone") var brandingPhone: String = ""
+    @AppStorage("brandingEmail") var brandingEmail: String = ""
+    @Published var companyLogoData: Data?
 
-    var subscriptionTier: SubscriptionTier {
-        get { SubscriptionTier(rawValue: subscriptionTierRaw) ?? .essential }
-        set { subscriptionTierRaw = newValue.rawValue }
+    var isPremium: Bool {
+        subscriptionTier == .premium || hasActiveSubscription
     }
 
-    func isPremiumLocked(_ tierRequired: SubscriptionTier) -> Bool {
-        switch tierRequired {
-        case .essential:
-            return false
-        case .premium:
-            return !(hasActiveSubscription && subscriptionTier == .premium)
+    var canCreateDesign: Bool {
+        isPremium || singleDesignCredits > 0
+    }
+
+    func useSingleDesignCredit() {
+        if singleDesignCredits > 0 {
+            singleDesignCredits -= 1
         }
+    }
+
+    func resetAll() {
+        subscriptionTier = .essential
+        singleDesignCredits = 0
+        hasCompletedOnboarding = false
+        hasActiveSubscription = false
+        defaultLaborCents = 50000
+        defaultMarkupPercent = 30
+        defaultTaxPercent = 0
+        brandingCompanyName = ""
+        brandingPhone = ""
+        brandingEmail = ""
+        companyLogoData = nil
     }
 }
 

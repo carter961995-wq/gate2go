@@ -1,48 +1,63 @@
 import Foundation
 
-enum PricingCalculator {
-    static func defaultBasePriceCents(style: GateStyle, material: Material, widthFeet: Double, heightFeet: Double) -> Int {
-        // MVP heuristic: simple estimate to seed editable pricing inputs.
-        let width = max(4, min(30, widthFeet))
-        let height = max(3, min(12, heightFeet))
+struct PricingCalculator {
 
-        let perFoot: Double = {
-            switch material {
-            case .wood: return 220_00
-            case .steel: return 260_00
-            case .chainLink: return 180_00
-            case .aluminumBasic: return 240_00
-            }
-        }()
+    static func calculateBasePrice(
+        gateStyle: GateStyle,
+        material: Material,
+        widthFeet: Int,
+        heightFeet: Int
+    ) -> Int {
+        let squareFeet = widthFeet * heightFeet
 
-        let styleMultiplier: Double = {
-            switch style {
-            case .singleSwing: return 1.0
-            case .doubleSwing: return 1.35
-            case .rollGate: return 1.15
-            case .cantileverSlide: return 1.55
-            case .overheadTrack: return 1.6
-            case .verticalPivot: return 1.75
-            }
-        }()
+        var basePricePerSqFt: Int
+        switch material {
+        case .wood:
+            basePricePerSqFt = 2000
+        case .steel:
+            basePricePerSqFt = 2500
+        case .chainLink:
+            basePricePerSqFt = 1500
+        case .aluminum:
+            basePricePerSqFt = 3000
+        }
 
-        // A tiny height influence so a 12' gate seeds higher than a 4' gate.
-        let heightMultiplier = 1.0 + ((height - 4) * 0.06)
-        let est = width * perFoot * styleMultiplier * heightMultiplier
-        return Int(est.rounded())
+        var styleMultiplier: Double = 1.0
+        switch gateStyle {
+        case .singleSwing:
+            styleMultiplier = 1.0
+        case .doubleSwing:
+            styleMultiplier = 1.3
+        case .rollGate:
+            styleMultiplier = 1.4
+        case .cantileverSlide:
+            styleMultiplier = 1.6
+        case .overheadTrack:
+            styleMultiplier = 1.8
+        case .verticalPivot:
+            styleMultiplier = 2.0
+        }
+
+        return Int(Double(squareFeet * basePricePerSqFt) * styleMultiplier)
     }
 
-    static func totalPriceCents(base: Int, addons: [AddonLineItem], laborCents: Int, markupPercent: Double, taxPercent: Double) -> Int {
-        let addonsCents = addons.reduce(0) { partial, item in
-            let perUnit = item.contractorCost.amountCents > 0
-                ? item.contractorCost.amountCents
-                : (item.nationalAvgPlaceholder?.amountCents ?? 0)
-            return partial + (perUnit * max(1, item.quantity))
-        }
-        let subtotal = max(0, base) + max(0, addonsCents) + max(0, laborCents)
-        let withMarkup = Double(subtotal) * (1.0 + max(0, markupPercent) / 100.0)
-        let withTax = withMarkup * (1.0 + max(0, taxPercent) / 100.0)
-        return Int(withTax.rounded())
+    static func calculateTotalPrice(
+        basePriceCents: Int,
+        addons: [AddonLineItem],
+        laborCents: Int,
+        markupPercent: Double,
+        taxPercent: Double
+    ) -> Int {
+        let addonsCents = addons.reduce(0) { $0 + $1.totalCents }
+        let subtotal = basePriceCents + addonsCents + laborCents
+        let markup = Int(Double(subtotal) * markupPercent / 100)
+        let tax = Int(Double(subtotal + markup) * taxPercent / 100)
+        return subtotal + markup + tax
+    }
+
+    static func formatMoney(_ cents: Int) -> String {
+        let dollars = Double(cents) / 100
+        return String(format: "$%.2f", dollars)
     }
 }
 

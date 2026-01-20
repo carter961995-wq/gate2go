@@ -1,128 +1,169 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct DesignDetailView: View {
-    let projectId: String
-    let designId: String
-
     @Environment(\.modelContext) private var modelContext
-    @Query private var designs: [GateDesignModel]
+    @EnvironmentObject var settings: Gate2GoSettings
+    @Bindable var design: GateDesignModel
 
-    @State private var showOriginal: Bool = false
-
-    init(projectId: String, designId: String) {
-        self.projectId = projectId
-        self.designId = designId
-        _designs = Query(filter: #Predicate<GateDesignModel> { $0.id == designId })
-    }
-
-    var design: GateDesignModel? { designs.first }
+    @State private var showShareSheet = false
+    @State private var pdfData: Data?
 
     var body: some View {
-        Group {
-            if let design {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
-                        imageBlock(design: design)
+        ScrollView {
+            VStack(spacing: 24) {
+                previewSection
+                specsSection
+                pricingSection
+                actionsSection
+            }
+            .padding()
+        }
+        .navigationTitle("Design Details")
+        .sheet(isPresented: $showShareSheet) {
+            if let pdfData = pdfData {
+                ShareSheet(activityItems: [pdfData])
+            }
+        }
+    }
 
-                        HStack {
-                            Toggle("Selected by client", isOn: Binding(
-                                get: { design.selectedByClient },
-                                set: { newValue in
-                                    design.selectedByClient = newValue
-                                    design.updatedAt = Date()
-                                }
-                            ))
-                        }
-                        .padding(14)
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    private var previewSection: some View {
+        GateDesignerView(
+            widthFeet: design.widthFeet,
+            heightFeet: design.heightFeet,
+            material: Material(rawValue: design.material) ?? .steel,
+            gateStyle: GateStyle(rawValue: design.gateStyle) ?? .singleSwing
+        )
+    }
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("\(design.gateStyle.cardTitle) • \(design.material.cardTitle)")
-                                .font(.title3.bold())
-                            Text("Size: \(Int(design.widthFeet))' W × \(Int(design.heightFeet))' H")
-                                .foregroundStyle(.secondary)
-                            Text("Total: \(MoneyFormatting.dollarsString(cents: design.totalPriceCents))")
-                                .font(.headline)
-                        }
-                        .padding(14)
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    private var specsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Specifications")
+                .font(.headline)
 
-                        HStack(spacing: 12) {
-                            Button("Duplicate & Edit") {
-                                duplicate(design: design)
-                            }
-                            .buttonStyle(.bordered)
+            VStack(spacing: 8) {
+                specRow("Style", value: GateStyle(rawValue: design.gateStyle)?.displayName ?? "")
+                specRow("Material", value: Material(rawValue: design.material)?.displayName ?? "")
+                specRow("Width", value: "\(design.widthFeet) ft")
+                specRow("Height", value: "\(design.heightFeet) ft")
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
 
-                            Button("Export") {
-                                // Stub: proposal export wired later in Options + Price.
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-                    }
-                    .padding()
+    private func specRow(_ label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+        }
+    }
+
+    private var pricingSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Pricing")
+                .font(.headline)
+
+            VStack(spacing: 8) {
+                specRow("Base Price", value: PricingCalculator.formatMoney(design.basePriceCents))
+                specRow("Labor", value: PricingCalculator.formatMoney(design.laborCents))
+                specRow("Markup", value: "\(Int(design.markupPercent))%")
+                specRow("Tax", value: "\(Int(design.taxPercent))%")
+
+                Divider()
+
+                HStack {
+                    Text("Total")
+                        .font(.headline)
+                    Spacer()
+                    Text(PricingCalculator.formatMoney(design.totalPriceCents))
+                        .font(.title3.bold())
+                        .foregroundStyle(.blue)
                 }
-                .navigationTitle("Design Detail")
-                .navigationBarTitleDisplayMode(.inline)
-            } else {
-                ContentUnavailableView("Design not found", systemImage: "questionmark.square")
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+
+    private var actionsSection: some View {
+        VStack(spacing: 12) {
+            Toggle("Selected by Client", isOn: $design.selectedByClient)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+
+            Button(action: exportPDF) {
+                HStack {
+                    Image(systemName: "doc.text")
+                    Text("Export Proposal PDF")
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+
+            Button(action: duplicateDesign) {
+                HStack {
+                    Image(systemName: "doc.on.doc")
+                    Text("Duplicate Design")
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.blue, lineWidth: 2)
+                )
             }
         }
     }
 
-    @ViewBuilder
-    private func imageBlock(design: GateDesignModel) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Render")
-                    .font(.headline)
-                Spacer()
-                Toggle("Original", isOn: $showOriginal)
-                    .labelsHidden()
-            }
-            .padding(.horizontal, 2)
-
-            let path = showOriginal ? nil : design.generatedImagePath
-            if let path, let ui = FileStore.readUIImage(path: path) {
-                Image(uiImage: ui)
-                    .resizable()
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            } else {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.secondary.opacity(0.12))
-                    .frame(height: 260)
-                    .overlay(Text(showOriginal ? "Original photo shown in Workspace" : "No generated render yet").foregroundStyle(.secondary))
-            }
-        }
+    private func exportPDF() {
+        // Note: Need project data for full PDF generation
+        // This is a simplified version
+        showShareSheet = true
     }
 
-    private func duplicate(design: GateDesignModel) {
-        let now = Date()
-        let copy = GateDesignModel(
+    private func duplicateDesign() {
+        let newDesign = GateDesignModel(
             projectId: design.projectId,
             gateStyle: design.gateStyle,
             material: design.material,
             widthFeet: design.widthFeet,
             heightFeet: design.heightFeet,
-            params: design.params,
-            addons: design.addons,
             basePriceCents: design.basePriceCents,
             totalPriceCents: design.totalPriceCents,
-            generatedImagePath: design.generatedImagePath,
-            thumbnailPath: design.thumbnailPath,
-            selectedByClient: false,
-            createdAt: now,
-            updatedAt: now
+            laborCents: design.laborCents,
+            markupPercent: design.markupPercent,
+            taxPercent: design.taxPercent
         )
-        modelContext.insert(copy)
+        modelContext.insert(newDesign)
     }
 }
 
-#Preview {
-    NavigationStack {
-        DesignDetailView(projectId: "p1", designId: "d1")
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
     }
-    .modelContainer(for: [ProjectModel.self, GateDesignModel.self], inMemory: true)
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+#Preview {
+    let design = GateDesignModel(projectId: "test")
+    return NavigationStack {
+        DesignDetailView(design: design)
+    }
+    .modelContainer(for: GateDesignModel.self)
+    .environmentObject(Gate2GoSettings())
 }
 

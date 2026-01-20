@@ -1,15 +1,8 @@
-//
-//  RandDFitApp.swift
-//  RandDFit
-//
-//  Created by Logan Carter on 1/9/26.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
-struct RandDFitApp: App {
+struct Gate2GoApp: App {
     @StateObject private var settings = Gate2GoSettings()
 
     var sharedModelContainer: ModelContainer = {

@@ -3,448 +3,355 @@ import SwiftData
 
 struct ProjectWorkspaceView: View {
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var settings: Gate2GoSettings
+    @EnvironmentObject var settings: Gate2GoSettings
+    let project: ProjectModel
 
-    let projectId: String
+    @State private var selectedTab = 0
+    @State private var gateStyle: GateStyle = .singleSwing
+    @State private var material: Material = .steel
+    @State private var widthFeet: Int = 12
+    @State private var heightFeet: Int = 6
+    @State private var addons: [AddonLineItem] = []
 
-    @Query private var projects: [ProjectModel]
-    @Query private var designs: [GateDesignModel]
-
-    @State private var draft = GateDesignDraft()
-    @State private var isGenerating: Bool = false
-    @State private var lastSavedDesignId: String?
-
-    init(projectId: String) {
-        self.projectId = projectId
-        _projects = Query(filter: #Predicate<ProjectModel> { $0.id == projectId })
-        _designs = Query(filter: #Predicate<GateDesignModel> { $0.projectId == projectId }, sort: \GateDesignModel.updatedAt, order: .reverse)
-    }
-
-    var project: ProjectModel? { projects.first }
-
-    var body: some View {
-        Group {
-            if let project {
-                TabView {
-                    DesignTabView(
-                        project: project,
-                        draft: $draft,
-                        isGenerating: $isGenerating,
-                        onGenerate: { generatePhotoreal(project: project) },
-                        onSaveVersion: { saveVersion(project: project) }
-                    )
-                    .tabItem { Label("Design", systemImage: "square.on.square") }
-
-                    OptionsPriceTabView(
-                        draft: $draft,
-                        tier: settings.subscriptionTier
-                    )
-                    .tabItem { Label("Options + Price", systemImage: "dollarsign.circle") }
-                }
-                .navigationTitle(project.name)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(value: Route.gallery(project.id)) {
-                            Label("Gallery", systemImage: "square.grid.2x2")
-                        }
-                    }
-                }
-                .onAppear {
-                    // Seed defaults on first open (or when coming from New Project).
-                    if draft.isFresh {
-                        draft.applyDefaults(from: settings)
-                        draft.basePriceCents = PricingCalculator.defaultBasePriceCents(
-                            style: draft.gateStyle,
-                            material: draft.material,
-                            widthFeet: draft.widthFeet,
-                            heightFeet: draft.heightFeet
-                        )
-                        draft.recomputeTotals()
-                    }
-                }
-                .onChange(of: draft.gateStyle) { _, _ in draft.reseedBasePriceIfAuto() }
-                .onChange(of: draft.material) { _, _ in draft.reseedBasePriceIfAuto() }
-                .onChange(of: draft.widthFeet) { _, _ in draft.reseedBasePriceIfAuto() }
-                .onChange(of: draft.heightFeet) { _, _ in draft.reseedBasePriceIfAuto() }
-            } else {
-                ContentUnavailableView("Project not found", systemImage: "questionmark.folder")
-            }
-        }
-    }
-
-    private func saveVersion(project: ProjectModel) {
-        let now = Date()
-        let design = GateDesignModel(
-            projectId: project.id,
-            gateStyle: draft.gateStyle,
-            material: draft.material,
-            widthFeet: draft.widthFeet,
-            heightFeet: draft.heightFeet,
-            params: draft.params,
-            addons: draft.addons,
-            basePriceCents: draft.basePriceCents,
-            totalPriceCents: draft.totalPriceCents,
-            generatedImagePath: draft.generatedImagePath,
-            thumbnailPath: draft.thumbnailPath,
-            selectedByClient: false,
-            createdAt: now,
-            updatedAt: now
-        )
-        modelContext.insert(design)
-        project.updatedAt = now
-        lastSavedDesignId = design.id
-    }
-
-    private func generatePhotoreal(project: ProjectModel) {
-        guard !isGenerating else { return }
-        isGenerating = true
-
-        // MVP: Generate a placeholder image and persist it as “generated”.
-        Task {
-            defer { Task { @MainActor in isGenerating = false } }
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            await MainActor.run {
-                // Placeholder: we simply mark “generated” as the same photo for now.
-                draft.generatedImagePath = project.sitePhotoPath
-                draft.thumbnailPath = project.sitePhotoPath
-            }
-        }
-    }
-}
-
-struct GateDesignDraft: Hashable {
-    var gateStyle: GateStyle = .singleSwing
-    var material: Material = .steel
-    var widthFeet: Double = 12
-    var heightFeet: Double = 6
-
-    var params: [String: JSONValue] = [:]
-    var addons: [AddonLineItem] = []
-
-    var basePriceCents: Int = 0
-    var totalPriceCents: Int = 0
-
-    var laborCents: Int = 0
-    var markupPercent: Double = 30
-    var taxPercent: Double = 0
-
-    var generatedImagePath: String?
-    var thumbnailPath: String?
-
-    var isFresh: Bool = true
-    var isBasePriceAutoSeeded: Bool = true
-
-    mutating func applyDefaults(from settings: Gate2GoSettings) {
-        laborCents = settings.defaultLaborCents
-        markupPercent = settings.defaultMarkupPercent
-        taxPercent = settings.defaultTaxPercent
-        isFresh = false
-    }
-
-    mutating func recomputeTotals() {
-        totalPriceCents = PricingCalculator.totalPriceCents(
-            base: basePriceCents,
-            addons: addons,
-            laborCents: laborCents,
-            markupPercent: markupPercent,
-            taxPercent: taxPercent
-        )
-    }
-
-    mutating func reseedBasePriceIfAuto() {
-        guard isBasePriceAutoSeeded else { return }
-        basePriceCents = PricingCalculator.defaultBasePriceCents(
-            style: gateStyle,
+    var basePriceCents: Int {
+        PricingCalculator.calculateBasePrice(
+            gateStyle: gateStyle,
             material: material,
             widthFeet: widthFeet,
             heightFeet: heightFeet
         )
-        recomputeTotals()
     }
-}
 
-private struct DesignTabView: View {
-    let project: ProjectModel
-    @Binding var draft: GateDesignDraft
-    @Binding var isGenerating: Bool
-    let onGenerate: () -> Void
-    let onSaveVersion: () -> Void
+    var addonsTotalCents: Int {
+        addons.reduce(0) { $0 + $1.totalCents }
+    }
 
-    @EnvironmentObject private var settings: Gate2GoSettings
+    var laborCents: Int {
+        settings.defaultLaborCents
+    }
 
-    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 12)]
+    var subtotalCents: Int {
+        basePriceCents + addonsTotalCents + laborCents
+    }
+
+    var markupCents: Int {
+        Int(Double(subtotalCents) * settings.defaultMarkupPercent / 100)
+    }
+
+    var taxCents: Int {
+        Int(Double(subtotalCents + markupCents) * settings.defaultTaxPercent / 100)
+    }
+
+    var totalPriceCents: Int {
+        subtotalCents + markupCents + taxCents
+    }
 
     var body: some View {
+        VStack(spacing: 0) {
+            Picker("Tab", selection: $selectedTab) {
+                Text("Design").tag(0)
+                Text("Options + Price").tag(1)
+            }
+            .pickerStyle(.segmented)
+            .padding()
+
+            if selectedTab == 0 {
+                designTab
+            } else {
+                pricingTab
+            }
+        }
+        .navigationTitle(project.clientName.isEmpty ? "Design" : project.clientName)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink(destination: DesignGalleryView(projectId: project.id)) {
+                    Image(systemName: "square.grid.2x2")
+                }
+            }
+        }
+    }
+
+    private var designTab: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                LivePreviewCard(photoPath: project.sitePhotoPath, style: draft.gateStyle, material: draft.material)
-
-                Group {
-                    Text("Gate Style")
-                        .font(.headline)
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(GateStyle.allCases) { style in
-                            let required: SubscriptionTier = (style == .cantileverSlide || style == .overheadTrack || style == .verticalPivot) ? .premium : .essential
-                            let locked = settings.isPremiumLocked(required)
-                            VisualCard(
-                                title: style.cardTitle,
-                                subtitle: required == .premium ? "Premium" : "Essential",
-                                systemImage: style.cardIcon,
-                                isSelected: draft.gateStyle == style,
-                                isLocked: locked
-                            ) {
-                                guard !locked else { return }
-                                draft.gateStyle = style
-                            }
-                        }
-                    }
-                }
-
-                Group {
-                    Text("Material")
-                        .font(.headline)
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(Material.allCases) { material in
-                            let required: SubscriptionTier = (material == .chainLink || material == .aluminumBasic) ? .premium : .essential
-                            let locked = settings.isPremiumLocked(required)
-                            VisualCard(
-                                title: material.cardTitle,
-                                subtitle: required == .premium ? "Premium" : "Essential",
-                                systemImage: material.cardIcon,
-                                isSelected: draft.material == material,
-                                isLocked: locked
-                            ) {
-                                guard !locked else { return }
-                                draft.material = material
-                            }
-                        }
-                    }
-                }
-
-                Group {
-                    Text("Size")
-                        .font(.headline)
-                    HStack(spacing: 12) {
-                        LabeledContent("Width (ft)") {
-                            Stepper(value: $draft.widthFeet, in: 4...30, step: 1) {
-                                Text("\(Int(draft.widthFeet))")
-                                    .monospacedDigit()
-                            }
-                        }
-                    }
-                    HStack(spacing: 12) {
-                        LabeledContent("Height (ft)") {
-                            Stepper(value: $draft.heightFeet, in: 3...12, step: 1) {
-                                Text("\(Int(draft.heightFeet))")
-                                    .monospacedDigit()
-                            }
-                        }
-                    }
-                }
-                .padding(14)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-
-                VStack(spacing: 10) {
-                    Button {
-                        onGenerate()
-                    } label: {
-                        HStack {
-                            if isGenerating {
-                                ProgressView().padding(.trailing, 6)
-                            }
-                            Text("Photoreal Generate")
-                                .font(.headline)
-                            Spacer()
-                            Image(systemName: "sparkles")
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(isGenerating)
-
-                    Button {
-                        onSaveVersion()
-                    } label: {
-                        HStack {
-                            Text("Save Version")
-                                .font(.headline)
-                            Spacer()
-                            Image(systemName: "square.and.arrow.down")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                }
+            VStack(spacing: 24) {
+                gatePreview
+                gateStyleSection
+                materialSection
+                sizeSection
             }
             .padding()
         }
-        .onChange(of: draft.basePriceCents) { _, _ in
-            draft.isBasePriceAutoSeeded = false
-            draft.recomputeTotals()
-        }
-        .onChange(of: draft.addons) { _, _ in
-            draft.recomputeTotals()
-        }
     }
-}
 
-private struct OptionsPriceTabView: View {
-    @Binding var draft: GateDesignDraft
-    let tier: SubscriptionTier
+    private var gatePreview: some View {
+        VStack(spacing: 8) {
+            GateDesignerView(
+                widthFeet: widthFeet,
+                heightFeet: heightFeet,
+                material: material,
+                gateStyle: gateStyle
+            )
 
-    var body: some View {
-        Form {
-            Section("Add-ons") {
-                Text("V1 add-ons are visual cards (keypad, latch, drop rod, and Premium openers).")
-                    .font(.footnote)
+            HStack {
+                Text("\(gateStyle.displayName) • \(material.displayName)")
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                NavigationLink("Open Add-ons (coming next)") {}
-            }
-
-            Section("Pricing") {
-                HStack {
-                    Text("Base price")
-                    Spacer()
-                    TextField("0", value: $draft.basePriceCents, format: .number)
-                        .multilineTextAlignment(.trailing)
-                        .keyboardType(.numberPad)
-                        .monospacedDigit()
-                }
-                HStack {
-                    Text("Labor")
-                    Spacer()
-                    TextField("0", value: $draft.laborCents, format: .number)
-                        .multilineTextAlignment(.trailing)
-                        .keyboardType(.numberPad)
-                        .monospacedDigit()
-                }
-                HStack {
-                    Text("Markup %")
-                    Spacer()
-                    TextField("30", value: $draft.markupPercent, format: .number)
-                        .multilineTextAlignment(.trailing)
-                        .keyboardType(.decimalPad)
-                        .monospacedDigit()
-                }
-                HStack {
-                    Text("Tax %")
-                    Spacer()
-                    TextField("0", value: $draft.taxPercent, format: .number)
-                        .multilineTextAlignment(.trailing)
-                        .keyboardType(.decimalPad)
-                        .monospacedDigit()
-                }
-            }
-            .onChange(of: draft.laborCents) { _, _ in draft.recomputeTotals() }
-            .onChange(of: draft.markupPercent) { _, _ in draft.recomputeTotals() }
-            .onChange(of: draft.taxPercent) { _, _ in draft.recomputeTotals() }
-
-            Section("Total") {
-                Text(MoneyFormatting.dollarsString(cents: draft.totalPriceCents))
-                    .font(.title3.bold())
-                    .monospacedDigit()
-            }
-
-            Section {
-                Button("Export Proposal (coming next)") {}
+                Spacer()
+                Text("\(widthFeet)' W x \(heightFeet)' H")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
-}
 
-private struct LivePreviewCard: View {
-    let photoPath: String
-    let style: GateStyle
-    let material: Material
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Live Preview")
+    private var gateStyleSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Gate Style")
                 .font(.headline)
-            ZStack(alignment: .bottomLeading) {
-                if let ui = FileStore.readUIImage(path: photoPath) {
-                    Image(uiImage: ui)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 220)
-                        .clipped()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color.accentColor.opacity(0.9), lineWidth: 2)
-                                .padding(16)
-                                .blendMode(.overlay)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                } else {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.secondary.opacity(0.12))
-                        .frame(height: 220)
-                        .overlay(Text("Photo unavailable").foregroundStyle(.secondary))
-                }
 
-                HStack(spacing: 8) {
-                    Text(style.cardTitle)
-                    Text("•")
-                    Text(material.cardTitle)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(GateStyle.allCases, id: \.self) { style in
+                    let isLocked = style.tier == "premium" && !settings.isPremium
+
+                    Button(action: {
+                        if !isLocked {
+                            gateStyle = style
+                        }
+                    }) {
+                        VStack(spacing: 4) {
+                            Text(style.displayName)
+                                .font(.subheadline)
+                                .multilineTextAlignment(.center)
+
+                            if style.tier == "premium" {
+                                Text("Premium")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(gateStyle == style ? Color.blue.opacity(0.2) : Color(.systemGray6))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(gateStyle == style ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .opacity(isLocked ? 0.5 : 1)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isLocked)
                 }
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(.thinMaterial, in: Capsule())
-                .padding(12)
             }
         }
     }
-}
 
-extension GateStyle {
-    var cardTitle: String {
-        switch self {
-        case .cantileverSlide: return "Cantilever Slide"
-        case .singleSwing: return "Single Swing"
-        case .doubleSwing: return "Double Swing"
-        case .rollGate: return "Roll Gate"
-        case .overheadTrack: return "Overhead Track"
-        case .verticalPivot: return "Vertical Pivot"
+    private var materialSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Material")
+                .font(.headline)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(Material.allCases, id: \.self) { mat in
+                    let isLocked = mat.tier == "premium" && !settings.isPremium
+
+                    Button(action: {
+                        if !isLocked {
+                            material = mat
+                        }
+                    }) {
+                        VStack(spacing: 4) {
+                            Text(mat.displayName)
+                                .font(.subheadline)
+
+                            if mat.tier == "premium" {
+                                Text("Premium")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(material == mat ? Color.blue.opacity(0.2) : Color(.systemGray6))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(material == mat ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .opacity(isLocked ? 0.5 : 1)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isLocked)
+                }
+            }
         }
     }
 
-    var cardIcon: String {
-        switch self {
-        case .cantileverSlide: return "arrow.left.and.right.square"
-        case .singleSwing: return "door.left.hand.open"
-        case .doubleSwing: return "door.french.open"
-        case .rollGate: return "rectangle.portrait.and.arrow.right"
-        case .overheadTrack: return "arrow.up.and.down.square"
-        case .verticalPivot: return "rotate.right"
+    private var sizeSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Size")
+                .font(.headline)
+
+            VStack(spacing: 16) {
+                HStack {
+                    Text("Width")
+                    Spacer()
+                    HStack(spacing: 12) {
+                        Button(action: { widthFeet = max(4, widthFeet - 1) }) {
+                            Image(systemName: "minus")
+                                .frame(width: 32, height: 32)
+                                .background(Color(.systemGray5))
+                                .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+
+                        Text("\(widthFeet) ft")
+                            .frame(width: 50)
+
+                        Button(action: { widthFeet = min(30, widthFeet + 1) }) {
+                            Image(systemName: "plus")
+                                .frame(width: 32, height: 32)
+                                .background(Color(.systemGray5))
+                                .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                HStack {
+                    Text("Height")
+                    Spacer()
+                    HStack(spacing: 12) {
+                        Button(action: { heightFeet = max(3, heightFeet - 1) }) {
+                            Image(systemName: "minus")
+                                .frame(width: 32, height: 32)
+                                .background(Color(.systemGray5))
+                                .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+
+                        Text("\(heightFeet) ft")
+                            .frame(width: 50)
+
+                        Button(action: { heightFeet = min(12, heightFeet + 1) }) {
+                            Image(systemName: "plus")
+                                .frame(width: 32, height: 32)
+                                .background(Color(.systemGray5))
+                                .cornerRadius(8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
         }
     }
-}
 
-extension Material {
-    var cardTitle: String {
-        switch self {
-        case .wood: return "Wood"
-        case .steel: return "Steel"
-        case .chainLink: return "Chain Link"
-        case .aluminumBasic: return "Aluminum (Basic)"
+    private var pricingTab: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                addonsSection
+                pricingCard
+                saveButton
+            }
+            .padding()
         }
     }
 
-    var cardIcon: String {
-        switch self {
-        case .wood: return "leaf"
-        case .steel: return "hammer"
-        case .chainLink: return "link"
-        case .aluminumBasic: return "square.3.layers.3d"
+    private var addonsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Add-ons")
+                .font(.headline)
+
+            AddOnPickerView(addons: $addons)
+        }
+    }
+
+    private var pricingCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Pricing")
+                .font(.headline)
+
+            VStack(spacing: 12) {
+                pricingRow("Base Price", cents: basePriceCents)
+
+                if addonsTotalCents > 0 {
+                    pricingRow("Add-ons (\(addons.count))", cents: addonsTotalCents)
+                }
+
+                pricingRow("Labor", cents: laborCents)
+                pricingRow("Markup (\(Int(settings.defaultMarkupPercent))%)", cents: markupCents)
+                pricingRow("Tax (\(Int(settings.defaultTaxPercent))%)", cents: taxCents)
+
+                Divider()
+
+                HStack {
+                    Text("Total")
+                        .font(.headline)
+                    Spacer()
+                    Text(PricingCalculator.formatMoney(totalPriceCents))
+                        .font(.title2.bold())
+                        .foregroundStyle(.blue)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+
+    private func pricingRow(_ label: String, cents: Int) -> some View {
+        HStack {
+            Text(label)
+            Spacer()
+            Text(PricingCalculator.formatMoney(cents))
+        }
+    }
+
+    private var saveButton: some View {
+        Button(action: saveDesign) {
+            HStack {
+                Image(systemName: "square.and.arrow.down")
+                Text("Save Version")
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+    }
+
+    private func saveDesign() {
+        let design = GateDesignModel(
+            projectId: project.id,
+            gateStyle: gateStyle.rawValue,
+            material: material.rawValue,
+            widthFeet: widthFeet,
+            heightFeet: heightFeet,
+            basePriceCents: basePriceCents,
+            totalPriceCents: totalPriceCents,
+            laborCents: laborCents,
+            markupPercent: settings.defaultMarkupPercent,
+            taxPercent: settings.defaultTaxPercent
+        )
+        modelContext.insert(design)
+
+        if !settings.isPremium && settings.singleDesignCredits > 0 {
+            settings.useSingleDesignCredit()
         }
     }
 }
 
 #Preview {
-    NavigationStack {
-        ProjectWorkspaceView(projectId: "p1")
-            .environmentObject(Gate2GoSettings())
+    let project = ProjectModel(clientName: "Test Client")
+    return NavigationStack {
+        ProjectWorkspaceView(project: project)
     }
-    .modelContainer(for: [ProjectModel.self, GateDesignModel.self], inMemory: true)
+    .modelContainer(for: [ProjectModel.self, GateDesignModel.self])
+    .environmentObject(Gate2GoSettings())
 }
 

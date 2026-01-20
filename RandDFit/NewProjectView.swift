@@ -1,153 +1,100 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import UIKit
 
 struct NewProjectView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var projectName: String = ""
-    @State private var clientName: String = ""
-    @State private var clientPhone: String = ""
-    @State private var clientEmail: String = ""
-    @State private var notes: String = ""
+    @Environment(\.dismiss) private var dismiss
 
-    @State private var pickedPhotoItem: PhotosPickerItem?
-    @State private var photoPath: String?
-    @State private var photoPreview: Image?
-
-    @State private var createdProjectId: String?
-    @State private var goToWorkspace: Bool = false
+    @State private var clientName = ""
+    @State private var clientPhone = ""
+    @State private var clientEmail = ""
+    @State private var siteAddress = ""
+    @State private var notes = ""
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var sitePhotoData: Data?
 
     var body: some View {
-        Form {
-            Section("Jobsite Photo (required)") {
-                VStack(alignment: .leading, spacing: 12) {
-                    PhotosPicker(selection: $pickedPhotoItem, matching: .images) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.secondary.opacity(0.12))
-                            if let photoPreview {
-                                photoPreview
-                                    .resizable()
-                                    .scaledToFill()
-                                    .clipped()
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            } else {
-                                VStack(spacing: 10) {
-                                    Image(systemName: "photo.on.rectangle")
-                                        .font(.title2)
-                                    Text("Tap to select photo")
-                                        .font(.headline)
-                                        .foregroundStyle(.secondary)
-                                }
+        NavigationStack {
+            Form {
+                Section("Client Info") {
+                    TextField("Client Name", text: $clientName)
+                    TextField("Phone", text: $clientPhone)
+                        .keyboardType(.phonePad)
+                    TextField("Email", text: $clientEmail)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                }
+
+                Section("Site") {
+                    TextField("Site Address", text: $siteAddress)
+
+                    HStack {
+                        Text("Site Photo")
+                        Spacer()
+
+                        if let photoData = sitePhotoData,
+                           let uiImage = UIImage(data: photoData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 60)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } else {
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                Image(systemName: "camera.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.blue)
                             }
                         }
-                        .frame(height: 200)
                     }
-
-                    if photoPath == nil {
-                        Text("A jobsite photo is required to start a project.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                    .onChange(of: selectedPhotoItem) { _, newItem in
+                        Task {
+                            if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                sitePhotoData = data
+                            }
+                        }
                     }
                 }
-            }
 
-            Section("Project") {
-                TextField("Project name", text: $projectName)
-                TextField("Notes", text: $notes, axis: .vertical)
-                    .lineLimit(3...6)
-            }
-
-            Section("Client (optional)") {
-                TextField("Client name", text: $clientName)
-                TextField("Phone", text: $clientPhone)
-                    .keyboardType(.phonePad)
-                TextField("Email", text: $clientEmail)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-            }
-
-            Section {
-                Button("Create Project") { createProject() }
-                    .disabled(!canCreate)
-            }
-        }
-        .navigationTitle("New Project")
-        .navigationBarTitleDisplayMode(.inline)
-        .task(id: pickedPhotoItem) { await loadPhoto() }
-        .background(
-            NavigationLink(
-                destination: Group {
-                    if let createdProjectId {
-                        ProjectWorkspaceView(projectId: createdProjectId)
-                    } else {
-                        EmptyView()
-                    }
-                },
-                isActive: $goToWorkspace
-            ) { EmptyView() }
-                .hidden()
-        )
-    }
-
-    private var canCreate: Bool {
-        let nameOK = !projectName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return nameOK && photoPath != nil
-    }
-
-    private func loadPhoto() async {
-        guard let pickedPhotoItem else { return }
-        do {
-            if let data = try await pickedPhotoItem.loadTransferable(type: Data.self),
-               let ui = UIImage(data: data) {
-                let fileName = "project_\(UUID().uuidString).jpg"
-                let path = try FileStore.writeJPEG(ui, fileName: fileName, subdirectory: "projects/photos")
-                await MainActor.run {
-                    photoPath = path
-                    photoPreview = Image(uiImage: ui)
+                Section("Notes") {
+                    TextEditor(text: $notes)
+                        .frame(height: 100)
                 }
             }
-        } catch {
-            // MVP: silently fail; user can retry pick.
-            await MainActor.run {
-                photoPath = nil
-                photoPreview = nil
+            .navigationTitle("New Project")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Create") {
+                        createProject()
+                    }
+                    .disabled(clientName.isEmpty)
+                }
             }
         }
     }
 
     private func createProject() {
-        guard let photoPath else { return }
-
-        let now = Date()
-        let p = ProjectModel(
-            name: projectName.trimmingCharacters(in: .whitespacesAndNewlines),
-            clientName: clientName.nilIfEmpty,
-            clientPhone: clientPhone.nilIfEmpty,
-            clientEmail: clientEmail.nilIfEmpty,
-            notes: notes.nilIfEmpty,
-            sitePhotoPath: photoPath,
-            createdAt: now,
-            updatedAt: now
+        let project = ProjectModel(
+            clientName: clientName,
+            clientPhone: clientPhone,
+            clientEmail: clientEmail,
+            siteAddress: siteAddress,
+            sitePhotoData: sitePhotoData,
+            notes: notes
         )
-        modelContext.insert(p)
-        createdProjectId = p.id
-        goToWorkspace = true
-    }
-}
-
-private extension String {
-    var nilIfEmpty: String? {
-        let t = trimmingCharacters(in: .whitespacesAndNewlines)
-        return t.isEmpty ? nil : t
+        modelContext.insert(project)
+        dismiss()
     }
 }
 
 #Preview {
-    NavigationStack {
-        NewProjectView()
-    }
-    .modelContainer(for: [ProjectModel.self, GateDesignModel.self], inMemory: true)
+    NewProjectView()
+        .modelContainer(for: ProjectModel.self)
 }
 

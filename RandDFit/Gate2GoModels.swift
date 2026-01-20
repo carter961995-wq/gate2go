@@ -1,249 +1,186 @@
-import Foundation
+import SwiftUI
 import SwiftData
 
-enum GateStyle: String, CaseIterable, Codable, Hashable, Identifiable {
-    case cantileverSlide = "cantilever_slide"
+enum GateStyle: String, Codable, CaseIterable {
     case singleSwing = "single_swing"
     case doubleSwing = "double_swing"
     case rollGate = "roll_gate"
+    case cantileverSlide = "cantilever_slide"
     case overheadTrack = "overhead_track"
     case verticalPivot = "vertical_pivot"
 
-    var id: String { rawValue }
+    var displayName: String {
+        switch self {
+        case .singleSwing: return "Single Swing"
+        case .doubleSwing: return "Double Swing"
+        case .rollGate: return "Roll Gate"
+        case .cantileverSlide: return "Cantilever Slide"
+        case .overheadTrack: return "Overhead Track"
+        case .verticalPivot: return "Vertical Pivot"
+        }
+    }
+
+    var tier: String {
+        switch self {
+        case .singleSwing, .doubleSwing, .rollGate: return "essential"
+        case .cantileverSlide, .overheadTrack, .verticalPivot: return "premium"
+        }
+    }
 }
 
-enum Material: String, CaseIterable, Codable, Hashable, Identifiable {
-    case wood = "wood"
-    case steel = "steel"
+enum Material: String, Codable, CaseIterable {
+    case wood
+    case steel
     case chainLink = "chain_link"
-    case aluminumBasic = "aluminum_basic"
+    case aluminum
 
-    var id: String { rawValue }
+    var displayName: String {
+        switch self {
+        case .wood: return "Wood"
+        case .steel: return "Steel"
+        case .chainLink: return "Chain Link"
+        case .aluminum: return "Aluminum"
+        }
+    }
+
+    var tier: String {
+        switch self {
+        case .wood, .steel: return "essential"
+        case .chainLink, .aluminum: return "premium"
+        }
+    }
 }
 
-enum SubscriptionTier: String, Codable, Hashable, Identifiable {
-    case essential
-    case premium
-
-    var id: String { rawValue }
-}
-
-struct Money: Codable, Hashable {
-    var amountCents: Int
-    var currency: String = "USD"
-}
-
-enum AddonType: String, Codable, Hashable, Identifiable {
+enum AddonType: String, Codable, CaseIterable {
     case keypad
-    case dropRod = "drop_rod"
     case latch
     case opener
+    case hinges
+    case wheels
+    case lock
 
-    var id: String { rawValue }
-}
-
-enum OpenerBrand: String, Codable, Hashable, Identifiable {
-    case liftmaster
-    case ghostControl = "ghost_control"
-    case doorking
-
-    var id: String { rawValue }
-}
-
-enum OpenerOperatorType: String, Codable, Hashable, Identifiable {
-    case slide
-    case swing
-    case dualSwing = "dual_swing"
-
-    var id: String { rawValue }
-}
-
-struct AddonLineItem: Identifiable, Codable, Hashable {
-    var id: String
-    var type: AddonType
-    var title: String
-
-    var brand: OpenerBrand?
-    var operatorType: OpenerOperatorType?
-
-    var quantity: Int
-    var contractorCost: Money
-    var nationalAvgPlaceholder: Money?
-    var notes: String?
-
-    init(id: String = UUID().uuidString,
-         type: AddonType,
-         title: String,
-         brand: OpenerBrand? = nil,
-         operatorType: OpenerOperatorType? = nil,
-         quantity: Int = 1,
-         contractorCost: Money,
-         nationalAvgPlaceholder: Money? = nil,
-         notes: String? = nil) {
-        self.id = id
-        self.type = type
-        self.title = title
-        self.brand = brand
-        self.operatorType = operatorType
-        self.quantity = quantity
-        self.contractorCost = contractorCost
-        self.nationalAvgPlaceholder = nationalAvgPlaceholder
-        self.notes = notes
-    }
-}
-
-/// Codable JSON value so we can persist arbitrary `params` cleanly.
-enum JSONValue: Codable, Hashable {
-    case string(String)
-    case number(Double)
-    case bool(Bool)
-    case object([String: JSONValue])
-    case array([JSONValue])
-    case null
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if container.decodeNil() {
-            self = .null
-        } else if let b = try? container.decode(Bool.self) {
-            self = .bool(b)
-        } else if let d = try? container.decode(Double.self) {
-            self = .number(d)
-        } else if let s = try? container.decode(String.self) {
-            self = .string(s)
-        } else if let o = try? container.decode([String: JSONValue].self) {
-            self = .object(o)
-        } else if let a = try? container.decode([JSONValue].self) {
-            self = .array(a)
-        } else {
-            self = .null
-        }
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
+    var displayName: String {
         switch self {
-        case .string(let s): try container.encode(s)
-        case .number(let d): try container.encode(d)
-        case .bool(let b): try container.encode(b)
-        case .object(let o): try container.encode(o)
-        case .array(let a): try container.encode(a)
-        case .null: try container.encodeNil()
+        case .keypad: return "Keypad Entry"
+        case .latch: return "Heavy-Duty Latch"
+        case .opener: return "Gate Opener"
+        case .hinges: return "Premium Hinges"
+        case .wheels: return "Roller Wheels"
+        case .lock: return "Security Lock"
         }
+    }
+
+    var defaultPriceCents: Int {
+        switch self {
+        case .keypad: return 35000
+        case .latch: return 8500
+        case .opener: return 85000
+        case .hinges: return 12000
+        case .wheels: return 15000
+        case .lock: return 9500
+        }
+    }
+}
+
+struct AddonLineItem: Codable, Identifiable {
+    var id = UUID()
+    var type: AddonType
+    var quantity: Int
+    var priceCents: Int
+
+    var totalCents: Int {
+        priceCents * quantity
     }
 }
 
 @Model
-final class ProjectModel {
-    @Attribute(.unique) var id: String
-    var name: String
-    var clientName: String?
-    var clientPhone: String?
-    var clientEmail: String?
-    var notes: String?
-    /// Local file path in app documents.
-    var sitePhotoPath: String
+class ProjectModel {
+    var id: String
+    var clientName: String
+    var clientPhone: String
+    var clientEmail: String
+    var siteAddress: String
+    var sitePhotoData: Data?
+    var notes: String
     var createdAt: Date
     var updatedAt: Date
 
-    init(id: String = UUID().uuidString,
-         name: String,
-         clientName: String? = nil,
-         clientPhone: String? = nil,
-         clientEmail: String? = nil,
-         notes: String? = nil,
-         sitePhotoPath: String,
-         createdAt: Date = Date(),
-         updatedAt: Date = Date()) {
+    init(
+        id: String = UUID().uuidString,
+        clientName: String = "",
+        clientPhone: String = "",
+        clientEmail: String = "",
+        siteAddress: String = "",
+        sitePhotoData: Data? = nil,
+        notes: String = "",
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
+    ) {
         self.id = id
-        self.name = name
         self.clientName = clientName
         self.clientPhone = clientPhone
         self.clientEmail = clientEmail
+        self.siteAddress = siteAddress
+        self.sitePhotoData = sitePhotoData
         self.notes = notes
-        self.sitePhotoPath = sitePhotoPath
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
 }
 
 @Model
-final class GateDesignModel {
-    @Attribute(.unique) var id: String
+class GateDesignModel {
+    var id: String
     var projectId: String
-
-    var gateStyleRaw: String
-    var materialRaw: String
-
-    var widthFeet: Double
-    var heightFeet: Double
-
-    /// Persisted JSON to support “customize everything”.
-    var paramsData: Data
-    var addonsData: Data
-
+    var gateStyle: String
+    var material: String
+    var widthFeet: Int
+    var heightFeet: Int
+    var addonsData: Data?
     var basePriceCents: Int
     var totalPriceCents: Int
-
-    var generatedImagePath: String?
-    var thumbnailPath: String?
-
+    var laborCents: Int
+    var markupPercent: Double
+    var taxPercent: Double
     var selectedByClient: Bool
+    var generatedImageData: Data?
     var createdAt: Date
     var updatedAt: Date
 
-    init(id: String = UUID().uuidString,
-         projectId: String,
-         gateStyle: GateStyle,
-         material: Material,
-         widthFeet: Double,
-         heightFeet: Double,
-         params: [String: JSONValue] = [:],
-         addons: [AddonLineItem] = [],
-         basePriceCents: Int,
-         totalPriceCents: Int,
-         generatedImagePath: String? = nil,
-         thumbnailPath: String? = nil,
-         selectedByClient: Bool = false,
-         createdAt: Date = Date(),
-         updatedAt: Date = Date()) {
+    init(
+        id: String = UUID().uuidString,
+        projectId: String,
+        gateStyle: String = "single_swing",
+        material: String = "steel",
+        widthFeet: Int = 12,
+        heightFeet: Int = 6,
+        addonsData: Data? = nil,
+        basePriceCents: Int = 0,
+        totalPriceCents: Int = 0,
+        laborCents: Int = 50000,
+        markupPercent: Double = 30,
+        taxPercent: Double = 0,
+        selectedByClient: Bool = false,
+        generatedImageData: Data? = nil,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
+    ) {
         self.id = id
         self.projectId = projectId
-        self.gateStyleRaw = gateStyle.rawValue
-        self.materialRaw = material.rawValue
+        self.gateStyle = gateStyle
+        self.material = material
         self.widthFeet = widthFeet
         self.heightFeet = heightFeet
-        self.paramsData = (try? JSONEncoder().encode(params)) ?? Data()
-        self.addonsData = (try? JSONEncoder().encode(addons)) ?? Data()
+        self.addonsData = addonsData
         self.basePriceCents = basePriceCents
         self.totalPriceCents = totalPriceCents
-        self.generatedImagePath = generatedImagePath
-        self.thumbnailPath = thumbnailPath
+        self.laborCents = laborCents
+        self.markupPercent = markupPercent
+        self.taxPercent = taxPercent
         self.selectedByClient = selectedByClient
+        self.generatedImageData = generatedImageData
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-    }
-}
-
-extension GateDesignModel {
-    var gateStyle: GateStyle {
-        get { GateStyle(rawValue: gateStyleRaw) ?? .singleSwing }
-        set { gateStyleRaw = newValue.rawValue }
-    }
-
-    var material: Material {
-        get { Material(rawValue: materialRaw) ?? .steel }
-        set { materialRaw = newValue.rawValue }
-    }
-
-    var params: [String: JSONValue] {
-        get { (try? JSONDecoder().decode([String: JSONValue].self, from: paramsData)) ?? [:] }
-        set { paramsData = (try? JSONEncoder().encode(newValue)) ?? Data() }
-    }
-
-    var addons: [AddonLineItem] {
-        get { (try? JSONDecoder().decode([AddonLineItem].self, from: addonsData)) ?? [] }
-        set { addonsData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 }
 

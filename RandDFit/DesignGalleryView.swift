@@ -2,83 +2,99 @@ import SwiftUI
 import SwiftData
 
 struct DesignGalleryView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var allDesigns: [GateDesignModel]
     let projectId: String
 
-    @Query private var designs: [GateDesignModel]
-
-    private let columns = [GridItem(.adaptive(minimum: 160), spacing: 12)]
-
-    init(projectId: String) {
-        self.projectId = projectId
-        _designs = Query(filter: #Predicate<GateDesignModel> { $0.projectId == projectId }, sort: \GateDesignModel.updatedAt, order: .reverse)
+    var designs: [GateDesignModel] {
+        allDesigns.filter { $0.projectId == projectId }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
     var body: some View {
-        ScrollView {
+        Group {
             if designs.isEmpty {
-                ContentUnavailableView("No Designs Yet", systemImage: "square.grid.2x2", description: Text("Save a version from the Design tab to see it here."))
-                    .padding(.top, 60)
+                emptyState
             } else {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(designs) { design in
-                        NavigationLink(value: Route.designDetail(designId: design.id, projectId: design.projectId)) {
-                            DesignTile(design: design)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding()
+                designsList
             }
         }
-        .navigationTitle("Design Gallery")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Design Versions")
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "square.grid.2x2")
+                .font(.system(size: 60))
+                .foregroundStyle(.secondary)
+
+            Text("No Designs Yet")
+                .font(.title2.bold())
+
+            Text("Save a design version to see it here")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var designsList: some View {
+        List {
+            ForEach(designs) { design in
+                NavigationLink(destination: DesignDetailView(design: design)) {
+                    DesignRow(design: design)
+                }
+            }
+            .onDelete(perform: deleteDesigns)
+        }
+    }
+
+    private func deleteDesigns(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(designs[index])
+        }
     }
 }
 
-private struct DesignTile: View {
+struct DesignRow: View {
     let design: GateDesignModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ZStack(alignment: .topTrailing) {
-                if let path = design.thumbnailPath, let ui = FileStore.readUIImage(path: path) {
-                    Image(uiImage: ui)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 120)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                } else {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.secondary.opacity(0.12))
-                        .frame(height: 120)
-                        .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
-                }
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemGray5))
+                .frame(width: 60, height: 60)
+                .overlay(
+                    Image(systemName: "door.garage.closed")
+                        .foregroundStyle(.secondary)
+                )
 
-                if design.selectedByClient {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(.green)
-                        .padding(10)
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(GateStyle(rawValue: design.gateStyle)?.displayName ?? "Gate")
+                    .font(.headline)
+
+                Text("\(design.widthFeet)' x \(design.heightFeet)' • \(Material(rawValue: design.material)?.displayName ?? "")")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(PricingCalculator.formatMoney(design.totalPriceCents))
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.blue)
             }
 
-            Text("\(design.gateStyle.cardTitle) • \(design.material.cardTitle)")
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(2)
+            Spacer()
 
-            Text("Total: \(MoneyFormatting.dollarsString(cents: design.totalPriceCents))")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if design.selectedByClient {
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+            }
         }
-        .padding(12)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(.vertical, 4)
     }
 }
 
 #Preview {
     NavigationStack {
-        DesignGalleryView(projectId: "p1")
+        DesignGalleryView(projectId: "test")
     }
-    .modelContainer(for: [ProjectModel.self, GateDesignModel.self], inMemory: true)
+    .modelContainer(for: GateDesignModel.self)
 }
 
