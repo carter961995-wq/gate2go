@@ -1,13 +1,13 @@
 //
-//  RandDFitUITestsLaunchTests.swift
-//  RandDFitUITests
+//  Gate2GoUITestsLaunchTests.swift
+//  Gate2GoUITests
 //
 //  Created by Logan Carter on 1/9/26.
 //
 
 import XCTest
 
-final class RandDFitUITestsLaunchTests: XCTestCase {
+final class Gate2GoUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

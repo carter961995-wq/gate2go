@@ -1,13 +1,13 @@
 //
-//  RandDFitUITests.swift
-//  RandDFitUITests
+//  Gate2GoUITests.swift
+//  Gate2GoUITests
 //
 //  Created by Logan Carter on 1/9/26.
 //
 
 import XCTest
 
-final class RandDFitUITests: XCTestCase {
+final class Gate2GoUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
