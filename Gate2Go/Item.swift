@@ -1,6 +1,6 @@
 //
 //  Item.swift
-//  RandDFit
+//  Gate2Go
 //
 //  Created by Logan Carter on 1/9/26.
 //
