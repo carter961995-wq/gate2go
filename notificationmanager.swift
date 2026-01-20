@@ -29,7 +29,7 @@ final class NotificationManager {
                                allowedDifficulties: Set<Difficulty>,
                                beginnerFriendly: Bool) async {
         let center = UNUserNotificationCenter.current()
-        await center.removeAllPendingNotificationRequests() 
+        center.removeAllPendingNotificationRequests()
 
         let calendar = Calendar.current
         let now = Date()
@@ -73,7 +73,11 @@ final class NotificationManager {
                 
                 let request = UNNotificationRequest(identifier: "randfit_\(idx)", content: content, trigger: trigger)
                 idx += 1
-                await center.add(request)
+                do {
+                    try await center.add(request)
+                } catch {
+                    // Ignore individual scheduling failures and continue.
+                }
             }
         }
     }
