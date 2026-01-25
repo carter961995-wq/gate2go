@@ -49,7 +49,7 @@ struct OnboardingView: View {
             }
             .padding()
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             await refreshNotificationsStatus()
         }

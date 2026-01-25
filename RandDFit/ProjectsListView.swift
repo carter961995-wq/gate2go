@@ -52,20 +52,6 @@ struct ProjectsListView: View {
                 }
             }
         }
-        .navigationDestination(for: Route.self) { route in
-            switch route {
-            case .newProject:
-                NewProjectView()
-            case .workspace(let projectId):
-                ProjectWorkspaceView(projectId: projectId)
-            case .settings:
-                SettingsView()
-            case .gallery(let projectId):
-                DesignGalleryView(projectId: projectId)
-            case .designDetail(let designId, let projectId):
-                DesignDetailView(projectId: projectId, designId: designId)
-            }
-        }
     }
 
     private func deleteProjects(offsets: IndexSet) {
