@@ -7,6 +7,7 @@ struct DesignDetailView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Query private var designs: [GateDesignModel]
+    @Query private var projects: [ProjectModel]
 
     @State private var showOriginal: Bool = false
 
@@ -14,9 +15,11 @@ struct DesignDetailView: View {
         self.projectId = projectId
         self.designId = designId
         _designs = Query(filter: #Predicate<GateDesignModel> { $0.id == designId })
+        _projects = Query(filter: #Predicate<ProjectModel> { $0.id == projectId })
     }
 
     var design: GateDesignModel? { designs.first }
+    var project: ProjectModel? { projects.first }
 
     var body: some View {
         Group {
@@ -82,7 +85,7 @@ struct DesignDetailView: View {
             }
             .padding(.horizontal, 2)
 
-            let path = showOriginal ? nil : design.generatedImagePath
+            let path = showOriginal ? project?.sitePhotoPath : design.generatedImagePath
             if let path, let ui = FileStore.readUIImage(path: path) {
                 Image(uiImage: ui)
                     .resizable()
@@ -92,7 +95,7 @@ struct DesignDetailView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.secondary.opacity(0.12))
                     .frame(height: 260)
-                    .overlay(Text(showOriginal ? "Original photo shown in Workspace" : "No generated render yet").foregroundStyle(.secondary))
+                    .overlay(Text(showOriginal ? "Original photo unavailable" : "No generated render yet").foregroundStyle(.secondary))
             }
         }
     }

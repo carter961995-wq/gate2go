@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoreImage.CIFilterBuiltins
 
 struct ProjectWorkspaceView: View {
     @Environment(\.modelContext) private var modelContext
@@ -99,15 +100,39 @@ struct ProjectWorkspaceView: View {
     private func generatePhotoreal(project: ProjectModel) {
         guard !isGenerating else { return }
         isGenerating = true
+        let basePath = project.sitePhotoPath
 
-        // MVP: Generate a placeholder image and persist it as “generated”.
         Task {
-            defer { Task { @MainActor in isGenerating = false } }
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            defer { await MainActor.run { isGenerating = false } }
+
+            let renderData = await Task.detached(priority: .userInitiated) { () -> Data? in
+                guard let base = FileStore.readUIImage(path: basePath),
+                      let ciImage = CIImage(image: base) else { return nil }
+
+                let controls = CIFilter.colorControls()
+                controls.inputImage = ciImage
+                controls.saturation = 1.1
+                controls.contrast = 1.15
+                controls.brightness = 0.02
+
+                let sharpen = CIFilter.sharpenLuminance()
+                sharpen.inputImage = controls.outputImage
+                sharpen.sharpness = 0.4
+
+                guard let outputImage = sharpen.outputImage else { return nil }
+                let context = CIContext()
+                guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return nil }
+                return UIImage(cgImage: cgImage).jpegData(compressionQuality: 0.92)
+            }.value
+
+            guard let renderData else { return }
+            let fileName = "render_\(UUID().uuidString).jpg"
+            let path = try? FileStore.writeData(renderData, fileName: fileName, subdirectory: "projects/renders")
             await MainActor.run {
-                // Placeholder: we simply mark “generated” as the same photo for now.
-                draft.generatedImagePath = project.sitePhotoPath
-                draft.thumbnailPath = project.sitePhotoPath
+                draft.generatedImagePath = path
+                if let path {
+                    draft.thumbnailPath = path
+                }
             }
         }
     }
@@ -179,6 +204,7 @@ private struct DesignTabView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 LivePreviewCard(photoPath: project.sitePhotoPath, style: draft.gateStyle, material: draft.material)
+                GeneratedPreviewCard(imagePath: draft.generatedImagePath, isGenerating: isGenerating)
 
                 Group {
                     Text("Gate Style")
@@ -391,6 +417,38 @@ private struct LivePreviewCard: View {
                 .padding(.vertical, 6)
                 .background(.thinMaterial, in: Capsule())
                 .padding(12)
+            }
+        }
+    }
+}
+
+private struct GeneratedPreviewCard: View {
+    let imagePath: String?
+    let isGenerating: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Generated Render")
+                .font(.headline)
+            ZStack(alignment: .center) {
+                if isGenerating {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.secondary.opacity(0.12))
+                        .frame(height: 220)
+                        .overlay(ProgressView("Generating...").font(.subheadline))
+                } else if let path = imagePath, let ui = FileStore.readUIImage(path: path) {
+                    Image(uiImage: ui)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 220)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.secondary.opacity(0.12))
+                        .frame(height: 220)
+                        .overlay(Text("Tap Photoreal Generate to render").foregroundStyle(.secondary))
+                }
             }
         }
     }
