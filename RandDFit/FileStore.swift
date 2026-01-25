@@ -22,7 +22,28 @@ enum FileStore {
     }
 
     static func readUIImage(path: String) -> UIImage? {
-        UIImage(contentsOfFile: path)
+        guard let resolvedPath = resolvePath(path) else { return nil }
+        if FileManager.default.fileExists(atPath: resolvedPath) {
+            return UIImage(contentsOfFile: resolvedPath)
+        }
+
+        let fallback = documentsDirectory()
+            .appendingPathComponent(URL(fileURLWithPath: resolvedPath).lastPathComponent)
+            .path
+        guard FileManager.default.fileExists(atPath: fallback) else { return nil }
+        return UIImage(contentsOfFile: fallback)
+    }
+
+    private static func resolvePath(_ path: String) -> String? {
+        let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed.hasPrefix("file://") {
+            if let url = URL(string: trimmed) {
+                return url.path
+            }
+            return trimmed.replacingOccurrences(of: "file://", with: "")
+        }
+        return trimmed
     }
 }
 

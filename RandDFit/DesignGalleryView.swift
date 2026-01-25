@@ -37,12 +37,13 @@ struct DesignGalleryView: View {
 
 private struct DesignTile: View {
     let design: GateDesignModel
+    @State private var thumbnail: Image?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack(alignment: .topTrailing) {
-                if let path = design.thumbnailPath, let ui = FileStore.readUIImage(path: path) {
-                    Image(uiImage: ui)
+                if let thumbnail {
+                    thumbnail
                         .resizable()
                         .scaledToFill()
                         .frame(height: 120)
@@ -72,6 +73,19 @@ private struct DesignTile: View {
         }
         .padding(12)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .task(id: design.thumbnailPath) {
+            await loadThumbnail()
+        }
+    }
+
+    private func loadThumbnail() async {
+        let path = design.thumbnailPath
+        await MainActor.run { thumbnail = nil }
+        guard let path else { return }
+        let ui = await Task.detached(priority: .utility) { FileStore.readUIImage(path: path) }.value
+        await MainActor.run {
+            thumbnail = ui.map { Image(uiImage: $0) }
+        }
     }
 }
 

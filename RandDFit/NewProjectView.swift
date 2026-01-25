@@ -76,19 +76,11 @@ struct NewProjectView: View {
         .navigationTitle("New Project")
         .navigationBarTitleDisplayMode(.inline)
         .task(id: pickedPhotoItem) { await loadPhoto() }
-        .background(
-            NavigationLink(
-                destination: Group {
-                    if let createdProjectId {
-                        ProjectWorkspaceView(projectId: createdProjectId)
-                    } else {
-                        EmptyView()
-                    }
-                },
-                isActive: $goToWorkspace
-            ) { EmptyView() }
-                .hidden()
-        )
+        .navigationDestination(isPresented: $goToWorkspace) {
+            if let createdProjectId {
+                ProjectWorkspaceView(projectId: createdProjectId)
+            }
+        }
     }
 
     private var canCreate: Bool {
